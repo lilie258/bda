@@ -1,0 +1,9 @@
+#首先在当前环境导入numpy:/home/codespace/.python/current/bin/python -m pip install numpy
+import numpy as np
+#使用array类方法创建数组对象
+array=np.array([1,2,3,4,5])
+print(array)
+#使用type()函数查看对象类型
+print(type(array))
+#使用shape()函数输出数组形状
+print(array.shape())
