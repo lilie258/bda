@@ -120,6 +120,37 @@ print(df)
 #apply自定义函数，本质上是映射
 #如果想要完成的任务没有函数直接实现，那么使用 apply 来自定义函数功能。我们应当尽量使用apply(), applymap()和series.map()，都不是使用循环来实现批量处理。
 #applymap()只能用于df，而series.map()只能用于Series，apply()可以用于两者
-
+#applymap和apply的区别：apply用于df时必须要单独去除Series才能实现，不能够直接在整个df上执行，而applymap可以在整个df上操作
+#例如使用apply进行条件判断与统计
+def func(row):
+    return True if row.Sex =="male" and row.Age>40 else False
+titanic_df.apply(func,axis=1).value_counts()
+print(titanic_df)
 
 #时间相关：Timestamp函数、Timedelta函数、to_datetime函数、date_range函数、resample方法
+#Timestamp函数创建一个时间戳
+ts = pd.Timestamp('2017-11-24')
+#对时间戳使用month属性查看月份，使用day属性查看日期
+#创建时间戳数组，注意其 dtype 类型，转换成 datetime64 再进行统计分析
+s = pd.Series(['2017-11-24 00:00:00','2017-11-25 00:00:00','2017-11-26 00:00:00'])
+print(s)
+#to_datetime将时间戳数组转成需要的日期格式，没有小时、分钟、秒数
+ts=pd.to_datetime(s)
+print(ts)
+'''
+0   2017-11-24
+1   2017-11-25
+2   2017-11-26
+dtype: datetime64[ns]
+'''
+ts.dt.hour#hour属性从时间戳数组中的datetime获取小时
+ts.dt.weekday#weekday属性对时间戳数组中的datetime获取周几的信息
+
+#使用resample聚合函数进行重采样（用于机器学习）
+resample("2D", label = 'left', closed = 'left').mean()#按2天进行聚合，closed = 'left' 意思是左闭，指定最左边那个作为label来表示
+#假设原始数据每天都有好几条，而需要的只是每天的平均指标，则按天重采样再求平均值
+data.resample('D').mean().head()
+#以三天为一个周期重采样
+data.resample('3D').mean().head()
+#按月为周期重采样
+data.resample('M').mean().head()
