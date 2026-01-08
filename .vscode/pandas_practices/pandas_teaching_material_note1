@@ -1,0 +1,182 @@
+import pandas as pd
+#四种数据类型
+'''
+- pd.Series  Pandas 中的 Series 类型相当于二维数组中的某一行或者某一列
+- pd.DataFrame
+- pd.Index
+- pd.MultiIndex
+'''
+#Series操作：如果单独取某一列数据，则是 Series 类型
+#Series的创建
+data = [10,11,12]
+index = ['a','b','c']
+s = pd.Series(data = data, index = index)
+print(s)
+
+#Series的索引
+print(s['a'])#用标签索引
+print(s[0])#用位置索引
+print(s[['a','c']])#用标签索引多值
+print(s[[0,2]])#用位置索引多值
+print(s['a':'c'])#用标签切片，左闭右闭
+print(s[0:2])#用位置切片，左闭右开
+#索引查找的方式与 Dataframe 完全相同，也可以用loc和iloc方法
+#修改索引
+print(s.index)
+s.index = ['A','B','C']
+print(s)
+#如果不想修改所有索引，只是改动一个索引，可以使用 rename 函数
+print(s.rename(index={'A':'a'}))
+
+#Series修改
+#修改的方式可以直接用索引取得然后修改
+s1 = s.copy()
+s1['a'] = 100
+print(s1)
+#使用 replace 函数进行修改
+s1.replace(to_replace = 100,value = 101, inplace = True)
+print(s1)
+
+#Series合并
+#_append方法合并
+s2 = pd.Series(data = [20,21,22], index = ['d','e','f'])
+s3 = s1._append(s2)
+print(s3)
+
+#如果觉得增加数据之后，索引不合适，可以重新生成索引，在 append 函数中指定 ignore_index == True 来重新生成索引
+s3 = s1._append(s2, ignore_index=True)
+print(s3)#生成的新索引是数字
+
+#Series的删除
+s3=s3.drop(index=[3])
+print(s3)
+
+#DataFrame的三个区域
+'''
+- df.index
+- df.columns
+- df.values, df.to_numpy(), df.from_numpy()
+- .to_list()
+'''
+
+#数据预处理
+
+#数据读取与基本信息
+#read_csv读取csv文件，列名的来源是 read_csv 函数默认将读取数据的第一行作为列名
+#替换原来的read_csv行，使用公开的titanic数据集链接
+titanic_df = pd.read_csv('https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv')
+#head方法看前n行
+print(titanic_df.head())
+#tail方法看后n行
+print(titanic_df.tail())
+#info方法查看数据基本信息
+print(titanic_df.info())
+#describe方法查看数据统计信息（比如均值，中位数，标准差等）
+print(titanic_df.describe())
+#size属性查看数据大小，指的是总的元素个数
+print(titanic_df.size)
+#shape属性查看数据形状
+print(titanic_df.shape)
+#ndim属性查看数据维度
+print(titanic_df.ndim)
+#dtypes属性查看每列数据类型
+print(titanic_df.dtypes)
+#columns属性查看列名，也可以直接读取df.columns.tolist()获得列表形式的列名
+print(titanic_df.columns)
+#Index(['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp','Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked'],dtype='object')
+#values属性查看数据值(等于df.to_numpy())，Dataframe 使用 values 返回由数值组成的矩阵
+print(titanic_df.values)
+print(titanic_df['Name'].values)
+
+#另外，可以自己创建Dataframe，最简单的方法是创建一个字典，然后再用 pd.Dataframe 创建，字典的 key 作为特征列的名称，字典的 value 作为各个样本的实际值
+data = {'country':['China','America','India'],
+       'population':[14,3,12]}
+df_data = pd.DataFrame(data)
+print(df_data)
+
+#如果读取数据的量过多，每次显示时会隐藏一部分数据，这时可以设置参数来控制显示的结果，通过查阅 set_option 函数的文档可以看到如何设置
+pd.set_option('display.max_rows', 10)  # 设置显示的最大行数为10
+pd.set_option('display.max_columns', 5)  # 设置显示的最大列数为5
+#查看默认的最大显示列数
+print(pd.get_option('display.max_columns'))  # 查看默认的最大显示列数
+
+
+#df数据索引
+#用切片行列之间没有逗号，直接[行切片][列切片],用loc和iloc方法行列之间有逗号，[行切片,列切片]
+#使用index属性获得索引的位置
+print(titanic_df.index)
+#数值和名称索引，列columns有列名，所以列可以用名称索引
+#可以先列后行
+print(titanic_df['Name'][0:5])
+#也可以先行后列
+print(titanic_df[0:5]['Name'])
+#使用loc方法按标签索引，loc方法是左闭右闭区间
+print(titanic_df.loc[0:4, ['Name', 'Age']])
+#使用iloc方法按位置索引，iloc方法是左闭右开区间
+print(titanic_df.iloc[0:5, [3, 5]])#0：5取得前5行，3和5取得第4列和第6列
+#索引多行多列
+#重置索引：由于行索引默认是自动加上的数字，所以可以取某一列的数据手动设置为行的索引
+#使用set_index方法
+titanic_df=titanic_df.set_index('Name')
+print(titanic_df.head())
+#因为已经将姓名设置为索引，所以想得到某位乘客的信息可以通过姓名来查找，例如查找某位乘客的年龄信息
+age = titanic_df['Age']
+age['Allen, Mr. William Henry']
+#注意，如果把名称设置为索引了，就不能再用数字索引行了，因为索引已经改变
+#比如，titanic_df.iloc[0:5]就不再是前5行了，因为索引已经变成了姓名
+
+#df中也可以用bool索引
+print(titanic_df[titanic_df['Age']>60])#查找年龄大于60岁的乘客信息，会显示所有列
+print(titanic_df[titanic_df['Age']>60][:5])#只显示前5行
+
+#数据分析
+
+#数据切片
+age = titanic_df['Age']
+print(age.head())
+print(titanic_df.loc['Allen, Mr. William Henry':'Andersson, Mr. Anders Johan', 'Age'])#这个取到age列指定名称的数据
+print(titanic_df.loc['Allen, Mr. William Henry':'Andersson, Mr. Anders Johan', :])#这个取到指定名称的所有列数据
+
+#使用聚合函数计算特定条件的统计值
+#describe(),count(), sum(), mean(), std(), median(), min(), max(),var(), corr(), cov(), quantile(.25)
+#注意，这些函数默认是对列进行操作的，如果想对行进行操作，需要指定 axis=1 参数
+#计算所有男性乘客的平均年龄
+print(titanic_df.loc[titanic_df['Sex'] == 'male','Age'].mean())
+#统计二元属性如协方差cov、相关系数corr，要设置参数numeric_only=True，即只对数值列进行计算
+print(titanic_df.corr(numeric_only=True))
+#使用groupby方法分组聚合计算（对于分类数据非常有用）
+print(titanic_df.groupby('Pclass').count())#按舱位等级分组计算各列的数量
+print(titanic_df.groupby('Pclass').mean())#按舱位等级分组计算平均年龄
+#value_counts方法也可以用于分类数据
+print(titanic_df.value_counts(ascending=True))#统计每一行数据出现的次数，按次数升序排列
+#对连续数据使用value_counts（比如年龄）离散化，注意，默认分箱区间是左开右闭的，可以通过设置参数right=False，include_lowest=True改为左闭右开
+print(titanic_df['Age'].value_counts(ascending=True,bins=5))#将年龄分成5个区间，并统计每个区间的数量
+#还可以使用cut函数分箱操作，涉及到条件设置与逻辑判断
+#注意：默认左开右闭。通过设置参数right=False,include_lowest=True改为左闭右开
+bins=[0,10,20,30,40,50,60,70,80]
+bins_res=pd.cut(titanic_df['Age'], bins)
+#使用codes属性查看分箱后的数据所属于的分箱区间编号
+print(bins_res.codes)
+#使用value_counts方法统计每个分箱区间的数量
+print(bins_res.value_counts(ascending=True))
+#在value_counts中设置labels参数对这些区间进行标签命名
+labels = ['0-10','10-20','20-30','30-40','40-50','50-60','60-70','70-80']
+bins_res_labeled=pd.cut(titanic_df['Age'], bins, labels=labels)
+print(bins_res_labeled.value_counts(ascending=True))
+
+#滑动窗口
+#rolling(20).mean() # 后面跟聚合函数 注意：rolling()得到的slice，长度从1,2,3,4,...,20,20,20，在很多场景下需要去掉前面的19个 [20-1:]
+
+#分片处理
+'''
+series.value_counts()
+pd.cut(ages,[10,20,50,80],labels= ['Yonth','Mille','Old'])).value_counts(ascending = True,bins = 5) 统计各个值的个数 # 思考一下groupby().counts()如何实现同样效果？
+pd.cut(ages, bins).value_counts() # 按bins分割成若干区间并进行统计
+df.groupby("category").agg([np.sum, np.mean, np.std])
+df.groupby("category").aggregate(lambda x:x**2)
+pd.date_range()
+resample("2D", label = 'left', closed = 'left').mean() # 对时间字段进行分组采样
+注：groupby()和resample() 都是生成一个tuple的列表，形如[(n1,df1),(n2,df2),(n3,df3)...]，可以与rolling()做个对比
+'''
+
+

@@ -1,0 +1,414 @@
+#首先在当前环境导入numpy:/home/codespace/.python/current/bin/python -m pip install numpy
+import numpy as np
+
+##numpy基本操作
+
+#使用array类方法创建数组对象
+array1=np.array([1,2,3,4,5])
+print(array1)
+#使用linspace函数创建等差数列数组
+array_linspace=np.linspace(0,10,5)#表示从0到10之间创建5个等差数列，注意是左闭右闭，5不是步长，是数列长度
+print(array_linspace)#输出结果是[ 0. 2.5  5.  7.5 10. ]
+#使用arange函数创建等差数列数组
+array_arange=np.arange(0,10,2)#表示从0到10之间创建步长为2的等差数列，注意是左闭右开
+print(array_arange)#输出结果是[0 2 4 6 8]
+#使用zeros函数创建全0数组
+array_zeros=np.zeros((3,4))#创建3行4列的全0数组
+#使用ones函数创建全1数组
+array_ones=np.ones((2,5))#创建2行5列的全1数组
+#使用empty方法创建未初始化数组
+array_empty=np.empty((2,3))#创建2行3列的未初始化数组
+#使用fill方法创建指定值数组
+array_filled=np.empty((2,3))
+array_filled.fill(7)#将数组中的所有元素填充为7
+#使用full方法创建指定值数组
+array_full=np.full((2,4),9)#创建2行4列的数组，所有元素为9
+#使用eye方法创建单位矩阵
+array_eye=np.eye(4)#创建4阶单位矩阵
+#使用identity方法创建单位矩阵
+array_identity=np.identity(3)#创建3阶单位矩阵
+#使用zeros_like方法创建与给定数组形状相同的全0数组
+array_zeros_like=np.zeros_like(array1)#创建与array1形状相同的全0数组
+#使用ones_like方法创建与给定数组形状相同的全1数组
+array_ones_like=np.ones_like(array1)#创建与array1形状相同的全1数组
+#使用logspace方法创建等比数列数组
+array_logspace=np.logspace(1,3,4)#表示从10的1次方到10的3次方之间创建4个等比数列
+#使用r_方法创建数组
+array_r_=np.r_[1:10:2]#表示从1到10之间创建步长为2的等差数列
+#使用c_方法创建数组
+array_c_=np.c_[1:5,6:10]#表示
+#均匀分布
+#使用random模块的rand方法创建随机数组
+array_random=np.random.rand(3,3)#创建3行3列的随机数组，元素在0到1之间均匀分布
+#使用random模块的randint方法创建指定范围内的随机整数数组
+array_randint=np.random.randint(0,10,(3,3))#创建3行3列的随机整数数组，元素在0到10之间
+#使用random模块uniform方法创建指定范围内的均匀分布随机数组
+array_uniform=np.random.uniform(0,1,(2,2))#创建2行2列的均匀分布随机数组，元素在0到1之间
+#正态分布
+#使用random模块normal方法创建指定均值和标准差的正态分布随机数组
+array_normal_custom=np.random.normal(5,2,(2,3))#创建2行3列的正态分布随机数组，均值为5，标准差为2
+#如果结果中小数点后面的位数过多，也可以指定返回结果的小数点位数
+np.set_printoptions(precision = 2)
+mu, sigma = 0,0.1
+np.random.normal(mu,sigma,10)
+#array([-0.06, -0.18,  0.01, -0.01, -0.06,  0.01, -0.27,  0.04, -0.07,0.05])
+#使用random模块的randn方法创建正态分布随机数组
+array_normal=np.random.randn(3,3)#创建3行3列的正态分布随机数组，均值为0，标准差为1
+
+#使用ndarray时必须要保证数组中所有元素是同一类型，如果不是同一类型，数组元素会自动向下进行转换，转换类型顺序是int→float→str
+example_list1=[1,2,3,4, '5']
+array2=np.array(example_list1)
+print(array2)#输出结果是['1' '2' '3' '4' '5']
+
+#查看类型分成查看对象类型和查看元素类型
+#使用type()函数查看对象类型
+print(type(array1))
+#输出结果是<class 'numpy.ndarray'>
+#使用dtype属性（注意是属性不是函数）可以输出当前数组中的数据类型，常见类型为int、float、str
+print(array1.dtype)#int64
+print(array2.dtype)#<U21
+array3=np.array([1.0])
+print(array3.dtype)#float64
+
+#查看形状
+#使用shape属性输出数组形状，注意是属性不是方法所以不用加括号
+print(array1.shape)#输出结果是(5,)因为是一维数组
+#使用size属性输出数组中的元素个数
+print(array2.size)#5
+#对于嵌套函数，size属性会怎么输出？
+array4=np.array([[1,2,3],[4,5,6]])
+print(array4.size)#6
+array5=np.array([(1,2),(3,4),(5,6)])
+print(array5)
+'''
+[[1 2]
+ [3 4]
+ [5 6]]
+'''
+print(array5.size)#6 
+#哪怕嵌套了元组，最后还是按照元组中的元素进行计数，而不是按照元组的个数进行计数，因为在array转换中直接把元组拆开了
+#使用ndim属性可以输出维度
+print(array2.ndim)#1
+print(array4.ndim)#2
+print(array5.ndim)#2  
+#为什么array5明明是3×2的数组，但是维度是2？因为ndim表示数组的 “维度数（轴的数量）”，维度数由数组的 “嵌套层级” 决定（只有列表 / 数组的嵌套才算层级，元组 / 数值不算额外层级）。
+
+#索引与切片
+#数值索引左闭右开
+#索引可以是负数，[-2:] 表示数组中倒数第二个数据到最后
+array6=np.array([[1,2,3],[4,5,6],[7,8,9]])
+print(array6[-2:])
+'''
+[[4 5 6]
+ [7 8 9]]
+'''
+print(array6[-2, -2:] )#[5 6]
+#bool数组索引与迭代器
+#构建bool列表
+bool_list1=[1,0,1]
+bool_list2=[1,0,1,0]
+bool_list3=[1,0,1,0,1,0,1,0,1]
+#使用bool类型索引选择元素，要求创建bool_array时要dtype=bool
+bool_array1=np.array(bool_list1)
+bool_array2=np.array(bool_list2)
+bool_array3=np.array(bool_list3)
+#查看结果
+print(array6[bool_array1])
+'''
+[[4 5 6]
+ [1 2 3]
+ [4 5 6]]
+'''
+print(array6[bool_array2])
+'''
+[[4 5 6]
+ [1 2 3]
+ [4 5 6]
+ [1 2 3]]
+'''
+print(array6[bool_array3])
+'''
+[[4 5 6]
+ [1 2 3]
+ [4 5 6]
+ [1 2 3]
+ [4 5 6]
+ [1 2 3]
+ [4 5 6]
+ [1 2 3]
+ [4 5 6]]
+ '''
+#发现对于嵌套列表，如果直接用一维bool数组作为索引，取得的元素是嵌套的第一层，而不是最底层的元素
+#那么怎么改？
+#要通过布尔索引选择array6的最底层单个元素（1、2、3…9），核心是：布尔数组的形状必须和array6的形状（或其展平后的形状）匹配—— 因为array6是二维数组（shape=(3,3)），底层元素是 3×3=9 个，所以需要构造和array6形状一致的二维布尔数组，或先把array6展平为一维数组，再用一维布尔数组索引。
+#bool_array1=np.reshape(bool_array1,array6.shape)
+#print(bool_array1.shape)
+#由于bool_array1、bool_array2元素数量不够，不能用reshape来塑造
+#bool_array3=np.reshape(bool_array3,array6.shape)
+#print(bool_array3.shape)#(3, 3)，改造完成
+#print(array6[bool_array3])
+'''
+[[[4 5 6]
+  [1 2 3]
+  [4 5 6]]
+
+ [[1 2 3]
+  [4 5 6]
+  [1 2 3]]
+
+ [[4 5 6]
+  [1 2 3]
+  [4 5 6]]]
+'''
+#可能是因为reshape的时候没有规定dtype=bool，我再试试
+#bool_array3=np.reshape(bool_array3,array6.shape,dtype=bool) 
+#print(array6[bool_array3])
+#reshape 函数不能直接dtype=bool，我看了一下，在前面转换bool_list为bool_array时没有规定dtype=bool所以出了问题，重来
+bool_array1=np.array(bool_list1,dtype=bool)
+bool_array2=np.array(bool_list2,dtype=bool)
+bool_array3=np.array(bool_list3,dtype=bool)
+bool_array3=np.reshape(bool_array3,array6.shape)
+print(array6[bool_array3])#[1 3 5 7 9]，这下对了
+
+#除了使用索引选择数据，还可以使用判断条件选择数据
+#where 函数找到符合要求的元素的索引位置，找到位置之后以位置为索引
+array7=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+array7=np.reshape(array7,(4,4))
+print(array7)
+location1=np.where(array7>4)
+print(location1)#先输出符合要求的位置的纵坐标（行号），再输出横坐标（列号），行号形成一个一维数组，列号形成一个一维数组
+#(array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3]), array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]))
+print(array7[location1])#[ 5  6  7  8  9 10 11 12 13 14 15 16]
+
+#逻辑判断
+#布尔类型还可以作为两个数组比对的结果
+y = np.array([1,1,1,4])
+x = np.array([1,0,1,2])
+print(x == y)#[ True False  True False]
+#y = np.array([1,1,1,4])
+x = np.array([1,0,1,2])
+#Numpy 中还提供了常见的逻辑判断例如和与或与非，logical_and、logical_or、logical_not
+print(np.logical_and(x > 0, y > 2))#[False False False  True]
+print(np.logical_or(x > 0, y > 2))#[ True False  True  True]
+print(np.logical_not(x > 0))#[False  True False  True]
+
+#数组的复制与赋值
+#直接赋值只是创建了一个新的引用，修改新引用会影响原数组
+array8=np.array([1,2,3,4,5])
+array9=array8
+array9[0]=100
+print(array8)#[100   2   3   4   5]
+#使用copy方法进行复制，修改新数组不会影响原数组
+array10=array8.copy()
+array10[0]=200
+print(array8)#[100   2   3   4   5]
+print(array10)#[200   2   3   4   5]
+#使用clip函数进行数组值的限制
+array8=np.array([1,2,3,4,5])
+clipped_array=array8.clip(2,4)#clip(2,4) 将比 2 小的全部赋值为 2，比 4 大的全部赋值为 4
+print(clipped_array)#[2 2 3 4 4]
+
+#数组的运算
+#数组的加减乘除
+array11=np.array([1,2,3,4,5])
+array12=np.array([10,20,30,40,50])
+print(array11+array12)#[11 22 33 44 55]
+print(array12-array11)#[ 9 18 27 36 45]
+print(array11*array12)#[ 10  40  90 160 250]
+print(array12/array11)#[10. 10. 10. 10. 10.]
+#数组的幂运算
+print(array11**2)#[ 1  4  9 16 25]
+print(np.power(array11,3))#[  1   8  27 64 125]
+#数组的矩阵点乘，使用np.dot方法
+array13=np.array([[1,2],[3,4]])
+array14=np.array([[10,20],[30,40]])
+print(np.dot(array13,array14))
+'''
+[[ 70 100]
+ [150 220]]
+'''
+print(array13.dot(array14))
+'''
+[[ 70 100]
+ [150 220]]
+'''
+#数组的矩阵乘法（按照对应位置的元素进行相乘），使用*运算符或者multiply方法
+print(array13*array14)
+'''
+[[10 40]
+ [90 160]]
+'''
+print(np.multiply(array13,array14))
+'''
+[[10 40]
+ [90 160]]
+'''
+#数组的转置，使用.T属性
+array15=np.array([[1,2,3],[4,5,6]])
+print(array15.T)
+'''
+[[1 4]
+ [2 5]
+ [3 6]]
+'''
+#数组的求和，使用sum方法
+array16=np.array([[1,2,3],[4,5,6]])
+print(np.sum(array16))#21，所有元素求和
+print(np.sum(array16,axis=0))#[5 7 9]，按列求和
+print(np.sum(array16,axis=1))#[ 6 15]，按行求和
+#数组的累乘，使用prod方法（累乘英语是product）
+print(np.prod(array16))#720，所有元素累乘
+print(np.prod(array16,axis=0))#[ 4 10 18]，按列累乘
+print(np.prod(array16,axis=1))#[  6 120]，按行累乘
+#数组的均值，使用mean方法
+#数组的标准差，使用std方法
+#数组的方差，使用var方法
+#数组的最大值，使用max方法
+#数组的最小值，使用min方法
+#数组的argmax方法返回最大值的索引位置
+#数组的argmin方法返回最小值的索引位置
+#同理，mean，std，var，max，min方法都可以指定axis参数进行按行或按列计算
+#使用round函数进行四舍五入，可以指定小数点位数
+array17=np.array([1.12345,2.6789,3.14159])
+print(np.round(array17,2))#[1.12 2.68 3.14]
+
+#数组排序
+array18=np.array([3,1,4,5,2])
+#使用sort方法进行排序，默认升序，指定参数kind可以选择排序算法，常见的有‘quicksort’（快速排序）、‘mergesort’（归并排序）、‘heapsort’（堆排序）
+sorted_array=np.sort(array18,kind='quicksort')
+print(sorted_array)#[1 2 3 4 5]
+#使用argsort方法返回排序后的索引位置
+sorted_indices=np.argsort(array18)
+print(sorted_indices)#[1 4 0 2 3]，表示排序后第0个位置是原数组的第1个元素，第1个位置是原数组的第4个元素，以此类推
+#使用searchsorted方法在已排序数组中查找插入位置
+array19=np.array([1,3,5,7,9])
+insert_position=array19.searchsorted(6)
+print(insert_position)#3，表示6应该插入在索引位置3处，即7
+#如果有多个相同元素，searchsorted默认返回第一个符合条件的索引位置，可以通过side参数指定返回最后一个符合条件的索引位置
+#使用lexsort方法按指定的顺序给出调整的索引位置
+
+#数组的打乱
+#数据一般都是按照采集顺序排列的，但有很多机器学习算法要求数据之间相互独立，所以需要对数据进行重新排列（洗牌）操作，每次洗牌的结果都不相同
+#使用shuffle函数对数组进行就地打乱
+tang_array = np.arange(10)
+np.random.shuffle(tang_array)
+print(tang_array)
+#有时候希望进行随机操作，却希望每次得到的随机结果都相同，这时需要指定随机种子，对不同的种子，得到的随机数结果不同
+np.random.seed(42)
+
+#从文件中读取数组、输出数组到文件
+#使用loadtxt方法从文本文件中读取数组
+array_from_file=np.loadtxt('data.txt',delimiter=',')#假设数据以逗号分隔
+print(array_from_file)
+#使用savetxt方法将数组输出到文本文件
+array_to_save=np.array([[1,2,3],[4,5,6]])
+np.savetxt('output.txt',array_to_save,delimiter=',')#将数组以逗号分隔输出到output.txt文件中
+#使用genfromtxt方法从文本文件中读取数组，可以指定缺失值的填充值
+array_from_file2=np.genfromtxt('data_with_missing.txt',delimiter=',',filling_values=0)
+print(array_from_file2)
+#使用load方法从二进制文件中读取数组
+loaded_array=np.load('array_data.npy')
+print(loaded_array)
+#使用save方法将数组保存为二进制文件
+np.save('array_data.npy',array_to_save)
+
+#数组拼接
+#使用concatenate方法进行数组拼接，可以指定axis参数进行按行或按列拼接
+array20=np.array([[1,2],[3,4]])
+array21=np.array([[5,6],[7,8]])
+concatenated_array=np.concatenate((array20,array21),axis=0)#按行拼接
+print(concatenated_array)
+'''
+[[1 2]
+ [3 4]
+ [5 6]
+ [7 8]]
+'''
+concatenated_array2=np.concatenate((array20,array21),axis=1)#按列拼接
+print(concatenated_array2)
+'''
+[[1 2 5 6]
+ [3 4 7 8]]
+'''
+#使用vstack方法进行垂直拼接（按行拼接）
+vstacked_array=np.vstack((array20,array21))
+print(vstacked_array)
+'''
+[[1 2]
+ [3 4]
+ [5 6]
+ [7 8]]
+'''
+#使用hstack方法进行水平拼接（按列拼接）
+hstacked_array=np.hstack((array20,array21))
+print(hstacked_array)
+'''
+[[1 2 5 6]
+ [3 4 7 8]]
+'''
+#当数据的维度为 1 时，hstack和vstack的作用相当于 stack，可以创建新的维度，当数据的维度为大于或等于 2 时，这两个函数的作用相当于 cancatenate，在已有维度上进行操作
+#使用stack方法进行数组堆叠，可以指定axis参数进行按新轴堆叠
+stacked_array=np.stack((array20,array21),axis=0)
+print(stacked_array)
+'''
+[[[1 2]
+  [3 4]]
+ [[5 6]
+  [7 8]]]
+'''
+#注意：stack方法会增加一个新的维度，而concatenate、vstack、hstack方法不会增加维度（增加一个维度就是再多一层嵌套）
+
+#数组分割
+#使用split方法进行数组分割，可以指定axis参数进行按行或按列分割，还可以指定indices_or_sections参数进行分割位置或分割段数的设置
+array22=np.array([[1,2,3,4],[5,6,7,8],[9,10,11,12]])
+split_arrays=np.split(array22,2,axis=0)#按行分割为2个子数组
+print(split_arrays)
+'''[[[1 2 3 4]]
+ [[5 6 7 8]]
+ [[9 10 11 12]]]
+'''
+split_arrays2=np.split(array22,2,axis=1)#按列分割为2个子数组，之后两个子数组形成一个大的总数组
+print(split_arrays2)
+'''
+[[[1 2]
+  [5 6]
+  [9 10]]
+ [[3 4]
+  [7 8]
+  [11 12]]]
+'''
+#使用vsplit方法进行垂直分割（按行分割）
+vsplit_arrays=np.vsplit(array22,3)#按行分割为3个子数组
+print(vsplit_arrays)
+'''
+[[[1 2 3 4]]
+ [[5 6 7 8]]
+ [[9 10 11 12]]]
+'''
+#使用hsplit方法进行水平分割（按列分割）
+hsplit_arrays=np.hsplit(array22,2)#按列分割为2个子数组
+print(hsplit_arrays)
+'''
+[[[1 2]
+  [5 6]
+  [9 10]]
+ [[3 4]
+  [7 8]
+  [11 12]]]
+'''
+
+#数组重塑
+#使用reshape方法进行数组重塑，可以指定新的形状
+#使用flatten方法将多维数组展平为一维数组
+array23=np.array([[1,2,3],[4,5,6]])
+flattened_array=array23.flatten()
+print(flattened_array)#[1 2 3 4 5 6]
+#使用ravel方法将多维数组展平为一维数组，返回的是原数组的视图
+raveled_array=array23.ravel()
+print(raveled_array)#[1 2 3 4 5 6]
+#使用unravel_index方法将一维索引转换为多维索引（但是注意只有unravel_index，没有unravel方法，也没有ravel_index）
+array_shape=(3,4)
+index=5
+multi_dim_index=np.unravel_index(index,array_shape)
+print(multi_dim_index)#(1, 1)，表示在3行4列的数组中，索引5对应的位置是第1行第1列
+

@@ -1,0 +1,125 @@
+import pandas as pd
+titanic_df = pd.read_csv('https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv')
+
+#透视表和交叉表
+#pivot 展示数据透视表操作，也就是按照自定义的方式分析数据
+titanic_pivot=titanic_df.pivot_table(index = 'Sex',columns='Pclass',values='Fare')
+print(titanic_pivot)
+#在pivot_table中，可以通过aggfunc参数指定聚合函数，默认是mean，可以改为sum、count等
+#统计各个船舱等级的乘客人数
+print(titanic_df.pivot_table(index='Pclass', values='PassengerId', aggfunc='count'))
+#接下来做稍微复杂的操作，按照年龄将乘客分成两组，成年人和未成年人，再对这两组乘客统计不同性别的人的平均获救可能性
+titanic_df['Underaged'] = titanic_df['Age'] <= 18
+print(titanic_df.pivot_table(index='Underaged', columns='Sex', values='Survived'))#注意：pivot_table的aggfunc默认是mean，所以不要再标了！！！
+
+#crosstab 交叉表操作，主要用于计算频率
+#把列的值，作为行和列名
+import numpy as np
+a = np.array(["foo", "foo", "foo", "foo", "bar", "bar", "bar", "bar", "foo", "foo", "foo"], dtype=object)
+b = np.array(["one", "one", "one", "two", "one", "one", "one", "two", "two", "two", "one"], dtype=object)
+c = np.array(["dull", "dull", "shiny", "dull", "dull", "shiny", "shiny", "dull", "shiny", "shiny", "shiny"],dtype=object)
+d = pd.crosstab(index=a, columns=[b, c], rownames=['a'], colnames=['b', 'c'])
+# 拿到第一个序列的唯一值，对第2/3进行计数
+print(d)
+'''
+b    one        two      
+c   dull shiny dull shiny
+a                        
+bar    1     2    1     0
+foo    2     2    1     2
+'''
+
+#聚集函数rolling、groupby和resample:
+#rolling 滚动窗口计算
+#可以指定多个groupby对象
+df = pd.DataFrame({'A' : ['foo', 'bar', 'foo', 'bar',
+                           'foo', 'bar', 'foo', 'foo'],
+                   'B' : ['one', 'one', 'two', 'three',
+                          'two', 'two', 'one', 'three'],
+                   'C' : np.random.randn(8),
+                   'D' : np.random.randn(8)})
+print(df.groupby(['A','B']).sum())#此处的索引是按照传入参数的顺序来指定的，如果习惯使用数值编号作为索引，可以设置 as_index 参数
+grouped=df.groupby(['A','B'])
+print(grouped.aggregate(np.sum))#aggregate可以传入多个聚合函数
+
+#常用函数操作 
+#数据整合：merge函数、join函数、concat函数、_append方法、update方法、combine方法、stack和unstack、melt方法、MultiIndex方法
+#merge函数可以整合多个DataFrame，对所有特征进行汇总并且按照其中一个文件的特征作为索引来整合
+left = pd.DataFrame({'key': ['K0', 'K1', 'K2', 'K3'],
+                    'A': ['A0', 'A1', 'A2', 'A3'], 
+                    'B': ['B0', 'B1', 'B2', 'B3']})
+right = pd.DataFrame({'key': ['K0', 'K1', 'K2', 'K3'],
+                    'C': ['C0', 'C1', 'C2', 'C3'], 
+                    'D': ['D0', 'D1', 'D2', 'D3']})
+res1=pd.merge(left, right, on='key')
+print(res1)
+#用一个新例子测试 key 在 left 和 right 中不同的结果，结果显示，key不同时会不对那个不同key的行进行汇总
+left = pd.DataFrame({'key1': ['K0', 'K1', 'K2', 'K3'],
+                     'key2': ['K0', 'K1', 'K2', 'K3'],
+                    'A': ['A0', 'A1', 'A2', 'A3'], 
+                    'B': ['B0', 'B1', 'B2', 'B3']})
+right = pd.DataFrame({'key1': ['K0', 'K1', 'K2', 'K3'],
+                      'key2': ['K0', 'K1', 'K2', 'K4'],
+                    'C': ['C0', 'C1', 'C2', 'C3'], 
+                    'D': ['D0', 'D1', 'D2', 'D3']})
+res2=pd.merge(left,right, on=['key1','key2'])
+print(res2)
+'''
+  key1 key2   A   B   C   D
+0   K0   K0  A0  B0  C0  D0
+1   K1   K1  A1  B1  C1  D1
+2   K2   K2  A2  B2  C2  D2
+'''
+#对于这种因为key不同没有匹配汇总的，要设置how参数，可以设置为outer、inner、left、right
+res3= pd.merge(left, right, on = ['key1', 'key2'], how = 'outer')
+print(res3)
+'''
+  key1 key2    A    B    C    D
+0   K0   K0   A0   B0   C0   D0
+1   K1   K1   A1   B1   C1   D1
+2   K2   K2   A2   B2   C2   D2
+3   K3   K3   A3   B3  NaN  NaN
+4   K3   K4  NaN  NaN   C3   D3
+'''
+#如果还需要详细的组合说明，可以指定 indicator 参数为 True
+res4 = pd.merge(left, right, on = ['key1', 'key2'], how = 'outer', indicator = True)
+print(res4)
+'''
+  key1 key2    A    B    C    D      _merge
+0   K0   K0   A0   B0   C0   D0        both
+1   K1   K1   A1   B1   C1   D1        both
+2   K2   K2   A2   B2   C2   D2        both
+3   K3   K3   A3   B3  NaN  NaN   left_only
+4   K3   K4  NaN  NaN   C3   D3  right_only
+'''
+
+#排序相关：sort_values函数、sort_index函数
+#使用sort_values排序，可以指定多个列进行排序，默认是升序排列，by 参数设置要排序的列，ascending 参数设置排序的方式
+#macrodat_df = pd.read_csv('https://raw.githubusercontent.com/statsmodels/statsmodels/main/statsmodels/datasets/macrodat/macrodat.csv')
+#macrodata_df.sort_values(by=['year', 'quarter'], ascending=[True, True], inplace=True)
+
+#数据删除：drop_duplicates方法、dropna方法、notnull方法、fillna方法、isnull方法判断缺失情况（一般是df.isnull().any()这样连用）、isna方法
+#drop_duplicates可以去除重复行
+#drop_duplicate可以只考虑某一列的重复情况，而舍弃其他全部列，要设置subset参数
+#有时需要判断某一列是否存在缺失值，any 函数表示的是只要有一个缺失值就是存在缺失情况，all() 需要所有字段均为True才为True
+df.isnull().any()
+df.isnull().all()
+#可以指定缺失值检查的维度 axis=0 或 axis=1，0表示检查每一列是否存在缺失值，1表示检查每一行是否存在缺失值
+
+#数据增加：assign方法、insert方法、append方法
+df = pd.DataFrame({'data1':np.random.randn(5),
+                'data2':np.random.randn(5)})
+df2 = df.assign(ratio = df['data1']/df['data2'])
+print(df2)
+#其实添加新列也可以直接写，不用assign方法
+df['ratio2'] = df['data1']/df['data2']
+print(df)
+
+
+#数据变换：astype方法、apply方法、map方法、replace方法、cut方法、get_dummies方法
+#apply自定义函数，本质上是映射
+#如果想要完成的任务没有函数直接实现，那么使用 apply 来自定义函数功能。我们应当尽量使用apply(), applymap()和series.map()，都不是使用循环来实现批量处理。
+#applymap()只能用于df，而series.map()只能用于Series，apply()可以用于两者
+
+
+#时间相关：Timestamp函数、Timedelta函数、to_datetime函数、date_range函数、resample方法
