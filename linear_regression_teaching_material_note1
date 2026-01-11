@@ -1,0 +1,164 @@
+#首先,线性回归属于回归,逻辑回归属于分类,回归和分类都是有监督学习,回归和分类的区别是
+'''
+输出类型一个是连续性数据,一个是离散型数据
+回归更多是找趋势线（回归曲线）和最优拟合,分类用于寻找决策面即用于决策
+回归的评估指标是决定系数即相关系数R方或者调整R方adjusted R square
+分类的评估指标是accuracy
+'''
+'''
+理论
+回归用于用于简单的预测分析货因果关系分析
+术语：样本点、趋势线（回归曲线）、特征变量（自变量x）、反应变量（因变量y）（回忆一下线性代数）,回归系数（斜率）、截距
+数学原理：寻找残差平方和最小的拟合函数,其残差平方和也称为回归模型的损失函数
+数学中寻找残差平方和最小值的方法是求导数！！！当导数为零时,残差平方和最小（最小二乘法）
+损失函数公式=（yi-yt）^2,yi时预测值,yt是实际值
+回归系数a=cov(x,y)/var(x)
+截距=y的平均数-a*x的平均数
+'''
+#一元线性回归：一个特征变量
+'''
+计算的数学公式前面说了,但是怎么代码实现呢？
+有一个问题：
+1 若将x,y分别看成一个向量,可以视作 a = x,y的协方差/x的方差。对比相关系数\rho
+2 注意这里cov(x,y), var(x) 都是全样本,即分母是n,而不是(n-1)
+3 np.cov()用的是n-1要谨慎；np.var()用的是n,则没有这个问题
+所以,不能直接用np.cov(),
+a=((x*y).mean()-x.mean()*y.mean())/x.var()
+或者，干脆自定义一个covar公式L:
+covar = lambda x,y: ((x*y).mean() - x.mean()*y.mean())
+a = covar(x,y)/covar(x,x)
+'''
+#绘制散点图用plot（kind='scatter')或者sns.lmplot
+#绘制散点图首先要处理好x、y的格式，写成二维结构形式，也即大列表里包含着小列表，这个其实是符合之后多元回归的逻辑
+
+#拟合模型
+X=[[1],[2],[3],[4]]#注意画图需要转换成np.array，拟合模型需要ndarray格式或者直接pd.DataFrame格式
+Y=[3,4,5,6]
+import numpy as np
+import pandas as pd
+X=np.array([[1],[2],[3],[4]])
+Y=np.array([3,4,5,6])
+from sklearn.linear_model import LinearRegression
+#regr=LinearRegression.fit(X,Y)  #注意不能这样写，一定要先实例化模型对象再用fit函数！！！！
+regr=LinearRegression()#实例化
+regr.fit(X,Y)
+#regr是已经搭建好的模型，现在可以用这个模型、predict函数来预测数据
+xi=np.array([[1.5]])#预测x=1.5的情况，注意xi也是嵌套列表的格式
+yi=regr.predict(xi)
+#print(yi)#[3.5]
+#如果想同时预测多个自变量取值，那就改xi
+xi=np.array([[1.5],[2.5]])
+yi=regr.predict(xi)
+#print(yi)#[3.5 4.5]
+
+#回归曲线可视化
+import matplotlib.pyplot as plt
+#plt.scatter(X,Y)
+#plt.plot(X,regr.predict(X))
+#plt.show()
+
+#构造线性回归方程，可以手酸，但是用模型自带的参数coef_和intercept_更快
+#print('系数a为:' + str(regr.coef_[0]))#str(regr.coef_)是[1.]
+#print('截距b为:' + str(regr.intercept_))
+
+#实战案例：汽车行业收入表预测
+salary_df=pd.read_excel("C:/Users/30722/Desktop/business data analysis/teaching materials/BDAB5-9/5 线性回归/datasets/汽车制造行业收入表.xlsx")
+#print(salary_df)#要pip install openpyxl
+#绘制散点图
+X=salary_df[['工龄']]#注意，X一定要是二维结构，所以要加多一个中括号，不能只是一个中括号！！！
+Y=salary_df['薪水']
+#plt.scatter(X,Y)
+#plt.xlabel('工龄')
+#plt.ylabel('薪水')
+#plt.show()
+#模型拟合
+from sklearn.linear_model import LinearRegression
+regr=LinearRegression()
+regr.fit(X,Y)
+#预测
+xi=pd.DataFrame([[15],[20]])
+yi=regr.predict(xi)
+print(yi)
+#画图
+plt.scatter(X,Y)
+plt.plot(X,regr.predict(X))
+plt.xlabel('工龄')
+plt.ylabel('薪水')
+plt.show()
+#回归方程构造
+
+#延申：一元多次线性回归模型的构建（比如一元二次线性回归模型）
+from sklearn.preprocessing import PolynomialFeatures
+'''
+preprocessing 子模块的作用，就是集中存放所有 “数据预处理工具”，方便用户统一管理和调用，比如：
+特征缩放：StandardScaler（标准化）、MinMaxScaler（归一化）
+分类变量编码：OneHotEncoder（独热编码）、LabelEncoder（标签编码）
+特征变换：PolynomialFeatures（多项式特征）、FunctionTransformer（自定义函数变换）
+缺失值处理：SimpleImputer（简单填充）
+PolynomialFeatures 是什么？
+它是 scikit-learn 中用于生成 “多项式特征” 的工具类，核心作用是把原始的低维特征转换成高维的多项式组合特征，让线性模型能拟合非线性关系。
+举个例子：
+如果原始特征是 [x1, x2]（2 维），用 PolynomialFeatures(degree=2)（degree 代表多项式次数）处理后，会生成：
+[1, x1, x2, x1², x1*x2, x2²]（6 维）
+（注：1 是常数项，x1²是 x1 的平方，x1*x2是特征交叉项）
+这样，原本的线性模型（比如线性回归）用这些多项式特征训练，就能实现 “多项式回归”，拟合非线性的曲线关系。
+'''
+poly_reg=PolynomialFeatures(degree=2)
+X_=poly_reg.fit_transform(X)#将原有的X转为一个新的二维数组X_，该二维数组包含新生成的二次项数据（x^2）和原来一次项数据（x）
+regr=LinearRegression()#实例化
+regr.fit(X_,Y)
+plt.scatter(X,Y)
+plt.plot(X,regr.predict(X_))#注意此时的predict()函数中填的是X_。
+plt.show()
+print(regr.coef_)#获取回归系数a、b
+print(regr.interpret_)#获取常数项c
+
+#线性回归模型评估
+'''
+R-squared（也即统计学中常说的R^2）
+Adj. R-squared（也即Adjusted R^2）
+P值
+其中R-squared和Adj. R-squared用来衡量线性拟合的拟合程度
+P值用来衡量特征变量的显著性。
+在实战应用角度，我们只需要记得R squared或者Adj. R-squared越高，那么模型的拟合程度越高；如果P值越低，那么该特征变量的显著性越高，也即真的和预测变量有相关性。
+R-squared 和 Adj. R-squared的取值范围为0-1
+P值本质是个概率值，其取值范围也为0-1
+'''
+import statsmodels.api as sm#pip install statsmodels
+X2=sm.add_constant(X)
+est=sm.OLS(Y,X2).fit()
+print(est.summary())
+'''
+statsmodels：是 Python 中专注于统计建模、统计推断的库（区别于 scikit-learn 的 “预测导向”，它更侧重传统统计学的显著性分析、参数检验）。
+api：是statsmodels的 “应用程序接口” 子模块，把常用的统计模型、工具集中封装在这里，方便调用。
+as sm：给模块起别名，后续代码用sm代替statsmodels.api，简化书写。
+2. X2=sm.add_constant(X)
+add_constant()：是statsmodels提供的 ** 给特征矩阵添加 “常数项列”** 的函数。
+原因：statsmodels的 OLS 回归模型默认不会自动添加截距项（而 scikit-learn 的 LinearRegression 会自动加），所以需要手动给特征矩阵X加一列全为 1 的 “常数项”，这样回归模型才能拟合出截距（常数项）。
+示例：如果X是[[1], [2], [3]]，执行后X2会变成[[1,1], [1,2], [1,3]]（第一列是新增的常数项）。
+3. est=sm.OLS(Y,X2).fit()
+sm.OLS：是statsmodels中的普通最小二乘法（Ordinary Least Squares）回归模型类，是线性回归的经典统计方法（核心是最小化 “预测值与真实值的平方误差和”）。
+参数：Y是因变量（目标值），X2是带常数项的特征矩阵（自变量）。
+.fit()：是模型的训练方法，作用是基于输入的Y和X2，估计出 OLS 回归的参数（截距、特征系数）。
+est：是训练完成后的模型对象，包含了回归的所有结果（系数、统计量等）。
+4. print(est.summary())
+est.summary()：是模型对象的统计摘要生成方法，会输出一份详细的回归分析报告，包含：
+回归系数（截距、各特征的系数）；
+统计检验指标（R²、调整 R²、F 统计量、p 值）；
+系数的显著性检验（t 值、p 值，判断特征是否对因变量有显著影响）。
+作用：通过这份报告可以分析回归模型的拟合效果、特征的统计显著性，是传统统计分析的核心输出。
+'''
+#另一种做法
+from sklearn.metrics import r2_score
+r2=r2_score(Y,regr.predict(X))
+#r2=ESS解释平方和/TSS整体平方和=1-RSS残差平方和/TSS
+#RSS=MSE*size或SSE
+#不过也不是拟合程度越高越好，当拟合程度过高的时候，可能会导致过拟合的现象
+'''
+Adj. R-squared是R-squared的改进版
+其目的是为了防止选取的特征变量过多（主要针对下一节将讲到的多元线性回归），而导致虚高的R-squared
+每当新增一个特征变量的时候，因为线性回归背后的数学原理，都会导致R-squared增加，但是可能这个新增的特征变量可能对模型并没有什么帮助，为了限制过多的特征变量，所以引入了Adj. R-squared的概念
+adjusted_r2=1-(1-r2)(n-1)/(n-k-1)k是特征变量的数量
+可以看到对于完全拟合的线性方程，Adj. R-squared和R-squared是一致的，都为数字1。
+'''
+

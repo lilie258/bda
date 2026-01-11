@@ -1,0 +1,9 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+#多元线性回归：多个特征变量，其实核心代码是一样的
+customervalue_df=pd.read_excel("C:/Users/30722/Desktop/business data analysis/teaching materials/BDAB5-9/5 线性回归/datasets/客户价值数据表.xlsx")
+print(customervalue_df)
+
+

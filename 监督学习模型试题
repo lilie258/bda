@@ -1,0 +1,1003 @@
+1. ```python
+   X = [[1, 0], [5, 1], [6, 4], [4, 2], [3, 2]]
+   y = [0, 1, 1, 0, 0]
+   from sklearn.linear_model import LogisticRegression
+   model = LogisticRegression()
+   model.fit(X, y) 
+   y_pred = model.predict([[1, 0], [5, 1], [6, 4], [4, 2], [3, 2]]))
+   ```
+   
+   以下代码查看分类准确率，正确的是（A）：
+
+A. model.score(X, y)
+
+B. model.score(y_pred, y)
+
+C. 
+
+```python
+from sklearn import metrics
+accuracy = metrics.accuracy_score(X, y)
+```
+
+D.
+
+```python
+from sklearn import metrics
+accuracy = metrics.accuracy_score(X_test, y_hat)
+```
+
+答案B的两个参数应为X,y  
+答案C的两个参数应为y_pred,y  
+答案D的X_test, y_hat两个变量并未定义
+
+2. 以下对数据集进行逻辑回归的一个合理顺序是（D）：
+
+A.
+
+```python
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.predict([[1,1], [2,2], [5, 5]])
+model.fit(X, y) 
+y_pred_proba = model.predict_proba(X) 
+```
+
+B.
+
+```python
+from sklearn.linear_model import LogisticRegression
+y_pred_proba = model.predict_proba(X) 
+model = LogisticRegression()
+model.fit(X, y) 
+model.predict([[1,1], [2,2], [5, 5]])
+```
+
+C. 
+
+```python
+model = LogisticRegression()
+model.fit(X, y) 
+model.predict([[1,1], [2,2], [5, 5]])
+y_pred_proba = model.predict_proba(X) 
+from sklearn.linear_model import LogisticRegression
+```
+
+D
+
+```python
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X, y) 
+model.predict([[1,1], [2,2], [5, 5]])
+y_pred_proba = model.predict_proba(X) 
+```
+
+3. 采集到数据如下：
+
+X = [[1, 0], [5, 1], [6, 4], [4, 2], [3, 2]]
+y = [0, 1, 1, 0, 0]
+
+从数据判断，可以用什么模型建模分析(B)？
+
+A. LinearRegression
+
+B. LogisticRegression
+
+C. 先回归再分类
+
+D. 先分类再回归
+
+### 解析
+
+y = [0, 1, 1, 0, 0]，显然是个二分类问题。
+
+4. 采集到数据如下：
+   
+   ```
+   X = [[1, 0], [5, 1], [6, 4], [4, 2], [3, 2]]
+   y = [1,2,3,2.5,2]
+   ```
+   
+   从数据判断，可以用什么模型建模分析(A)？
+   
+   A. LinearRegression
+   
+   B. LogisticRegression
+   
+   C. 先回归再分类
+   
+   D. 先分类再回归
+   
+   ### 解析
+   
+   从y判断，它是连续取值，不是一个单纯的分类问题，因而用回归最佳
+
+5. 按Sigmoid方程，当自变量z1=100，z2=1000时，对应的y1, y2特点是(A,D)
+
+A. y1 = 1
+
+B. y1<y2
+
+C. y2 = 1.1
+
+D. y1=y2
+
+### 解析
+
+y1 = y2 = 1，考生必须实际用sigmoid公式计算才能得出
+?为啥选AD,是因为当z非常大时，e的负指数趋近于0，所以y趋近于1，因此y1=y2=1。
+
+6. Sigmoid函数
+   
+   $$
+   y = \frac{1}{1+e^{-z}}
+   $$
+   
+   的作用在于(A,D)：
+   
+   A. 将回归方程输出转化为分类问题
+   
+   B. 将[−∞,∞]投影到[-1,1]区间
+   
+   C. 将分类方程的输出转化为回归问题
+   
+   D. 将[−∞,∞]的回归输出投影到[0,1]区间
+
+7. 对某个数据集(exam_X,exam_Y)，划分了训练集和测试集，并进行了拟合，代码如下：
+   
+   ```
+   from sklearn.model_selection import train_test_split
+   X_train, X_test, Y_train, Y_test = train_test_split(exam_X,exam_Y,test_size=0.2)
+   
+   from sklearn.linear_model import LinearRegression
+   model =LinearRegression()
+   model.fit(X_train,Y_train)
+   Y_pred =  model.predict(X_test)
+   ```
+   
+   现在需要评估模型在测试集上的效果R2，如下正确的是(A,C)：#回忆一下,r2的计算公式为R2=1-RSS/TSS
+   
+   A.`print(model.score(X_test,Y_test))`
+   
+   B. 
+   
+   ```
+   RSS = ((Y_pred-Y_test)**2).sum() # = MSE * size
+   TSS = ((Y_pred-Y_test.mean())**2).sum() # = Var*size
+   r2 = 1- (RSS/TSS)
+   print(r2)
+   ```
+   
+   C. 
+   
+   ```
+   from sklearn.metrics import r2_score
+   print(r2_score(Y_test, Y_pred))
+   ```
+   
+   D.
+   
+   ```
+   from sklearn.metrics import r2_score
+   print(r2_score(X_test, Y_test))
+   ```
+   
+   ### 解析
+   
+   ```
+   # 方法一
+   print('方法一(model.score)：',model.score(X_test,Y_test))
+   
+   # 方法二
+   from sklearn.metrics import r2_score
+   print('方法二（sklearn.metrics.r2_score）：',r2_score(Y_test, Y_pred))
+   
+   # 方法三（手工计算）
+   
+   RSS = ((Y_pred-Y_test)**2).sum() # = MSE * size
+   TSS = ((Y_test-Y_test.mean())**2).sum() # = Var*size#✳▲注意TSS计算公式!!!!
+   r2 = 1- (RSS/TSS)
+   print('方法三（手工计算）：',r2)
+   
+   请注意，三种方法各自的参数是不一样的。
+   ```
+
+8. 
+
+![Image Name](https://cdn.kesci.com/upload/image/rlf46730ll.png?imageView2/0/w/960/h/960)  
+观察到互联网行业“工龄-薪水”的关系，用一元一次线性回归不足以解释，计划采用一元多次线性回归模型，即
+
+$$
+y=ax^2+bx+c
+$$
+
+已经采集到对应数据分别为X, Y。以下正确的做法是(B)：
+
+A.
+
+```
+from sklearn.preprocessing import PolynomialFeatures
+poly_reg = PolynomialFeatures(degree=3) 
+X_ = poly_reg.fit_transform(X) 
+from sklearn.linear_model import LinearRegression
+regr = LinearRegression()
+regr.fit(X_, Y) 
+```
+
+B
+
+```
+from sklearn.preprocessing import PolynomialFeatures
+poly_reg = PolynomialFeatures(degree=2) 
+X_ = poly_reg.fit_transform(X) 
+from sklearn.linear_model import LinearRegression
+regr = LinearRegression()
+regr.fit(X_, Y) 
+```
+
+C.
+
+```
+from sklearn.preprocessing import PolynomialFeatures
+poly_reg = PolynomialFeatures(degree=2) 
+X_ = poly_reg.fit_transform(X) 
+from sklearn.linear_model import LinearRegression
+regr = LinearRegression()
+regr.fit(X, Y) 
+```
+
+D.
+
+```
+from sklearn.linear_model import LinearRegression
+regr = LinearRegression()
+regr.fit(X**2, Y)
+```
+
+### 解析
+
+```
+from sklearn.preprocessing import PolynomialFeatures
+poly_reg = PolynomialFeatures(degree=2) 
+X_ = poly_reg.fit_transform(X) 
+from sklearn.linear_model import LinearRegression
+regr = LinearRegression()
+regr.fit(X_, Y) 
+```
+
+X_ 中的第1~3列分别为 x0, x1, x2。所以不可以简单地将X∗∗2输入模型
+
+9. 设一元一次模型为y=ax+b，采集数据如下：
+   
+   ```
+   X = [[1.2], [2.3], [3.2], [4.5]]
+   Y = [2, 4, 6, 8]
+   ```
+   
+   经过拟合后，获得截距b（保留小数点两位）为（A）：
+   
+   A. 0.80
+   
+   B. 0.72
+   
+   C. 0.77
+   
+   D. 0.84
+   
+   ### 解析
+   
+   b = 0.7999999999999989
+   口算也行,因为数据点基本在线性关系上，斜率a大约为2，所以b大约为2-2*1.2=0.8
+
+10. ```python
+    X = [[1], [2], [4], [5]]
+    Y = [2, 4, 6, 8]
+    from sklearn.linear_model import LinearRegression
+    regr = LinearRegression()
+    regr.fit(X,Y)
+    
+    X_ = [[1.5], [2.5], [4.5]]
+    # 用X_预测多个数据Y_
+    Y_ = 
+    ```
+    
+    预测的结果是(D)？
+    
+    A. Y_ = [2.0, 4.0, 6.0, 8.0]
+    
+    B. Y_ = [2.3, 4.5, 7.2]
+    
+    C. Y_ = [3.1 4.4 7.2]
+    
+    D. Y_ = [2.9 4.3 7.1]
+    
+    ### 解析
+    
+    模型预测 - 预测多个数据  
+    Y_ = regr.predict([[1.5], [2.5], [4.5]])  
+    print(Y_)
+
+11. 采用sklearn.linear_model的LinearRegression进行线性回归，正确的顺序是(C)：
+    
+    A.
+    
+    ```python
+      from sklearn.linear_model import LinearRegression 
+      regr = LinearRegression() 
+      regr.score(X, Y)
+      Y_ = regr.predict(X) 
+      regr.fit(X,Y)
+    ```
+    
+    B    
+    
+    ```python
+    regr = LinearRegression() 
+    regr.fit(X,Y) 
+    Y_ = regr.predict(X) 
+    from sklearn.linear_model import LinearRegression 
+    regr.score(X, Y)
+    ```
+    
+    C. 
+    
+    ```python
+    from sklearn.linear_model import LinearRegression 
+    regr = LinearRegression() 
+    regr.fit(X,Y) 
+    Y_ = regr.predict(X) 
+    regr.score(X, Y)
+    ```
+    
+    D. 
+    
+    ```python
+    from sklearn.linear_model import LinearRegression 
+    Y_ = regr.predict(X) 
+    regr = LinearRegression() 
+    regr.score(X, Y)
+    regr.fit(X,Y)
+    ```
+    
+    ### 解析
+    
+    import 模块 -> 初始化对象 -> 拟合 -> 预测以及评估拟合优度  
+    四个过程顺序不可乱
+
+12. 在使用最小二乘法做线性回归的时候，设
+    
+    $$
+    y=ax+b
+    $$
+    
+    已经采集了若干点(xi, yi)  。快速求出a的公式为(A,B,C,D)：
+    
+    A. $ a=cov(x,y)/σ_x^2$
+    
+    其中，$cov(x,y)$为求x, y的协方差，$σ_x^2$为x的方差
+    
+    B. 
+    
+    $$
+    a=\frac{\overline{xy}-\bar x \bar y}{\overline{xx}-\bar x\bar x}
+    #overline是乘法后均值的意思,bar是直接对某个变量数据取均值
+    $$
+    
+    这里$\bar x, \bar y, \overline{x,y}
+    
+    C.
+    
+    $$
+    a = \frac{n\sum{x_iy_i}-\sum x_i\sum y_i}{n\sum x_i^2 - (\sum x_i)^2}
+    $$
+    
+    这里n为数据集的大小，∑为求和符号
+    
+    D. 以上都对
+    
+    ### 解析
+    
+    A, B, C实际上为同样答案的3种形式。
+
+13. 父亲与儿子的身高为下表
+    
+    | 父亲身高(x) | 儿子身高(y) |
+    | ------- | ------- |
+    | 1.55    | 1.63    |
+    | 1.64    | 1.72    |
+    | 1.6     | 1.71    |
+    | 1.76    | 1.74    |
+    | 1.81    | 1.76    |
+    | 1.87    | 1.86    |
+    
+    对两个变量做回归分析，请问最后拟合残差RSS(Residual of Sum of Square)或称SSE（Sum of Square of Error）为多少（小数点后4位）(A)？
+    
+    A. 0.0044
+    
+    B. 0.065
+    
+    C. 0.0039
+    
+    D. 0.96
+    
+    ### 解析
+    
+    ```
+    import numpy as np
+    import matplotlib.pyplot as plt
+    x = np.array([[1.51],[1.64],[1.6],[1.73],[1.82], [1.87]])
+    y = np.array([1.63,1.7,1.71,1.72,1.76,1.86])
+    plt.scatter(x,y)
+    ```
+    
+    ```
+    from sklearn.linear_model import LinearRegression
+    regr = LinearRegression()
+    regr.fit(x,y)
+    
+    plt.scatter(x,y)
+    plt.plot(x, regr.predict(x))
+    plt.show()
+    
+    print(&#39;系数a为:&#39; + str(regr.coef_[0]))
+    print(&#39;截距b为:&#39; + str(regr.intercept_))
+    print(&#39;回归方程为:&#39; + str(regr.intercept_) +"+"+ str(regr.coef_[0])+"*x")
+    ```
+    
+    ```
+    最后计算残差为 真实值与预测值的差的平方和（SSE: Sum of Square of Error）残差多少？
+    
+    ((y - regr.predict(x))**2).sum()
+    ```
+
+14. 计算上题的y的整体平方和（Total Sum of Square）
+
+$$
+TSS= \sum(y_i − \bar y)^2
+$$
+
+精确到小数点后4位(B)。
+
+A. 0.0044
+
+B. 0.0292
+
+C. 0.0223
+
+D. 0.0248
+
+### 解析
+
+```
+((y- y.mean())**2).sum()
+```
+
+15. 计算ESS（Explained Sum of Square）
+
+$$
+ESS = \sum (\hat y − \bar y)^2
+$$
+
+  为：（A）
+A. 0.0248
+B. 0.0221
+C. 0.0044
+D. 0.0292
+
+### 解析
+
+    ((regr.predict(x)-y.mean())**2).sum()
+
+17. 弗朗西斯·高尔顿爵士（英文：Sir Francis Galton，1822年2月16日－1911年1月17日）发现高个子父亲的儿子身高会矮一些，而矮个子父亲的儿子身高会高一些（否则高个子家族会越来越高，而矮个子家族会越来越矮），也就是说人类的身高都会回到平均值附近，他将这种现象称为均值回归。
+    
+    研究方法是采集了若干父子身高的数据（父为x轴，子为y轴），最后高尔顿拟合的直线方程为（单位为米）：
+    
+    $$
+    y=0.55x+0.92
+    $$
+    
+    请问按照这个规律，父亲身高为多少的时候儿子身高与他相同：（C）
+    
+    A. 1.80
+    
+    B. 1.74
+    
+    C. 1.77
+    
+    D. 1.68
+    
+    ### 解析
+    
+    联立方程 y=0.55x+0.92和y=x
+    
+    即可求解出x = y =  
+    即父子身高1.77的时候最稳定，父亲高于1.77的时候儿子往往低于1.77，而父亲低于1.77的时候儿子则高于1.77。
+
+18. 创建一个(3,3,3)的数组，服从均匀分布，语句是(B)：
+
+A. np.arange(3, 3,3)
+
+B. np.random.random((3, 3, 3))
+
+C. np.randn(3, 3,3)
+
+D. np.random.randn((3, 3, 3))
+
+### 解析
+
+A. np.arange的作用是定义范围  
+B. np.randn(3, 3,3)并没有这个包，所有的随机函数都在np.random模块里  
+D. np.random.randn((3, 3, 3)) 服从正态分布
+
+> 1. 精确率(Precision)的计算公式是？
+
+A. TP / (TP + FP)  
+B. TN / (TN + FP)  
+C. TP / (TP + FN)  
+D. TP / TN  
+E. None of the Above.
+
+Option **A** is the right answer.
+
+> 2. 以下测量公式相同的是？Which two performance metric are similar ?
+
+A. Precision and Recall.  
+B. Recall and Specificity(特异性).  
+C. Recall and Sensitivity(灵敏度).  
+D. Precision and Sensitivity(灵敏度).  
+E. None of these.
+
+Option **C** is the right answer.
+
+> 3. Which matrix is the cross-tab of actual and predicted class values ?
+> 
+> 以下哪项是关于实际和预测类型的交叉表？
+
+A. Similarity matrix.  
+B. Confusion matrix.  
+C. Diagonal Matrix.  
+D. Null Matrix.  
+E. Identity Matrix.
+
+Option **B** is the right answer.
+
+> 4. In which case, the occurrence of false negatives is undesirable ?
+> 
+> FN与如下哪个指标为反相关关系？
+
+A. Precision  
+B. F1-Score  
+C. Specificity  
+D. Sensitivity  
+E. None of these.
+
+Option **D** is the right answer.
+
+> 5. Precision and Recall focus on what Outcomes ?
+> 
+> Precision和Recall关注哪个指标？
+
+A. TP  
+B. TN  
+C. FP  
+D. None of these.  
+E. FN
+
+Option **A** is the right answer.
+
+> 6. Which metric helps us when Identifying the positives is crucial ?
+> 
+> 哪个指标可以观察到positive的重要性
+题目中 “Identifying the positives is crucial”（识别正例至关重要），本质是要求 **“不遗漏真实正例”**
+所以选recall即sensitivity
+A. Recall  
+B. Precision  
+C. F1-Score  
+D. None of the these.  
+E. Sensitivity
+
+Option **A and E** are the right answer.
+
+### **逻辑回归和线性回归**
+
+- 逻辑回归是一种广义线性模型，它引入了Sigmod函数，是非线性模型，但本质上还是一个线性回归模型，因为除去Sigmod函数映射关系，其他的算法原理，步骤都是线性回归的。
+- 逻辑回归和线性回归首先都是广义的线性回归，在本质上没多大区别，区别在于逻辑回归多了个Sigmod函数，使样本映射到[0,1]之间的数值，从而来处理分类问题。另外逻辑回归是假设变量服从伯努利分布，线性回归假设变量服从高斯分布。逻辑回归输出的是离散型变量，用于分类，线性回归输出的是连续性的，用于预测。逻辑回归是用最大似然法去计算预测函数中的最优参数值，而线性回归是用最小二乘法去对自变量因变量关系进行拟合。
+
+**1)判断对错:逻辑回归是一种有监督的机器学习算法吗?**
+
+A)是
+
+B)不是
+
+答案: A
+
+逻辑回归是一种有监督的学习算法，因为它使用真正的标签进行训练。当你训练模型时，监督学习算法应该有输入变量(X)和目标变量(Y)。
+
+**2)判断对错:逻辑回归主要用于回归吗?**
+
+A)是
+
+B)不是
+
+答案:B
+
+逻辑回归是一种分类算法，不要与回归混淆。
+
+**3)判断对错:用神经网络算法设计逻辑回归算法是否可行?**
+
+A)是
+
+B)不是
+
+答案:A
+
+神经网络是一种通用的算法，因此它可以实现线性回归算法。
+
+**4)判断对错:在3级分类问题上应用逻辑回归算法是可行的吗?**
+
+A)是
+
+B)不是
+
+答案:A
+
+是的，可行。
+
+**5)下列哪种方法在逻辑回归上最适合数据?**
+
+A)最小二乘方误差
+
+B)极大似然估计
+
+C)杰卡德距离
+杰卡德距离（Jaccard Distance）是 衡量两个集合差异程度 的距离度量方法，核心基于「杰卡德相似系数」（Jaccard Similarity Coefficient），常用于 布尔型特征、集合数据 的差异比较（比如文本关键词、用户行为标签、物品属性等 “存在 / 不存在” 的场景）。#
+
+D)A和B
+
+答案:B
+
+极大似然估计最适合逻辑回归的训练。
+
+**6)在逻辑回归输出与目标比较的情况下，下列哪一种评估指标不能被应用?**
+
+A)AUC-RUC
+#AUC-RUC是用于评估分类模型性能的指标，适用于逻辑回归
+ruc是ROC曲线下面积（Area Under the Receiver Operating Characteristic Curve）的缩写，常用于评估二分类模型的性能。
+AUC-RUC值介于0和1之间，值越大表示模型的分类能力越强。
+
+B)精确度
+
+C)Logloss
+
+D)均方误差
+
+答案:D
+
+因为逻辑回归是一种分类算法，所以它的输出不能是实时值。因此，均方误差不能用于评估它。
+
+**7)分析逻辑回归性能的一个很好的方法是AIC准则，它类似于线性回归中的R-Squared。**
+AIC准则是:AIC 准则（Akaike Information Criterion）中文名为赤池信息准则，是由日本统计学家赤池弘次（Hirotugu Akaike）提出的模型选择指标，核心作用是在「模型拟合优度」和「模型复杂度」之间找到最优平衡，避免过拟合或欠拟合，帮助从多个候选模型中选择 “最优” 模型。
+以下关于AIC的哪一种说法是对的?
+
+A)我们更喜欢具有最小的价值的模型
+
+B)我们更喜欢具有最大的价值的模型
+
+C)以上两种情况都取决于情况
+
+D)都不对
+
+答案:A
+
+我们在逻辑回归中选择了最好的模型，至少AIC是这样的。
+
+更多信息请参考: http://www4.ncsu.edu/~shu3/Presentation/AIC.pdf
+
+**8)判断对错:在训练逻辑回归之前，需要对特征进行标准化。**
+
+A)是
+
+B)不是
+
+答案:B
+
+逻辑回归不需要标准化。标准化特性的主要目的是帮助优化技术的融合。
+
+**9)我们用哪些算法来进行变量选择?**
+
+A)LASSO
+
+B)Ridge
+
+C)两种都是
+
+D)两种都不是
+
+答案:A
+
+以LASSO的情况，我们应用了绝对的惩罚，在增加了LASSO的惩罚后，一些变量的系数可能变为零。
+
+**10-11)考虑下面的逻辑回归模型: P(y =1|x,w)=g(w0 +w1x)，g(z)是逻辑函数。**
+
+在上面的方程中P(y =1|x;w)被看作是x的函数，我们可以通过改变参数w来得到。
+
+**10)在这种情况下，p的范围是多少?**
+ A)(0,inf)
+
+B)(-inf,0)
+
+C)(0,1)
+
+D)(-inf,inf)
+
+**答案: C**
+
+x的值在−∞到+∞的实数范围内，逻辑函数将会给出(0,1)之间的输出。
+
+**11)在上面的问题中，你认为哪个函数会使p在(0,1)之间?**
+
+A)逻辑函数
+
+B)对数似然函数
+
+C)两者混合
+
+D)都不是
+
+答案:A
+
+解释同上
+
+**12-13)假设你训练了一个逻辑回归分类器，你的假设函数H是：**
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/o5lqzakblu.jpeg?imageView2/2/w/1620)
+
+**12)下列哪张图代表上述分类器所给出的决策边界?**
+
+A）
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/kpl4pdboy1.jpeg?imageView2/2/w/1620)
+
+B）
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/xq6qp0jav7.jpeg?imageView2/2/w/1620)
+
+C)
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/dwxcc9cuj0.jpeg?imageView2/2/w/1620)
+
+D)
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/q819iksvuz.jpeg?imageView2/2/w/1620)
+
+答案:B
+
+因为直线由y=g(6+x2)来表示，选项A和B都对，但选项B是正确答案,因为当你把值x2=6放在方程中，y=g(0)，这意味着y=0.5将会在直线上，如果你将x2的值增大，你会得到负值，所以输出范围y=0。
+
+**13)如果将x1和x2的系数替换，那么输出的结果是什么呢?**
+
+A）
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/6b00aemriu.jpeg?imageView2/2/w/1620)
+
+B）
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/4pj4ql339r.jpeg?imageView2/2/w/1620)
+
+C）
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/gk4ie3hdzo.jpeg?imageView2/2/w/1620)
+
+D）
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/74z02vpjvd.jpeg?imageView2/2/w/1620)
+
+答案：D
+
+解释同上
+
+**14)假设你得到了一枚硬币，你想知道抛出正面的概率。在这种情况下，下列哪一种选项是正确的?**
+
+A)概率是0
+
+B)概率是0.5
+
+C)概率是1
+
+D)都不是
+
+答案:C
+
+如果硬币的成功概率是1/2，而失败的概率是1/2，那么概率就是1。???这题答案不对吧
+
+**15)下列哪个选项是正确的?**
+
+A)线性回归误差值必须是正常分布的但在逻辑回归的情况下并非如此。
+
+B)逻辑回归误差值必须是正常分布的但是在线性回归的情况下并非如此。
+
+C)线性回归和逻辑回归误差值必须是正常分布的。
+
+D)线性回归和逻辑回归误差值都不是正常分布的。
+
+答案:A
+
+只有A是正确的，请参阅本教程 https://czep.net/stat/mlelr.pdf
+
+**16)在使用高(无限)正则化的情况下，偏差会如何变化?**
+
+假设你已经在两个散点图给出 “a”和“b”两个类(蓝色表示为正类，红色为负类)。在散点图a中，你使用逻辑回归(黑线是决策边界)正确地分类了所有的数据点。
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/k8kw3d72xg.jpeg?imageView2/2/w/1620)
+
+A)偏差将会很高
+B)偏差会很低
+C）不好说
+D)都不是
+
+答案:A
+
+模型会变得非常简单，所以偏差非常高。
+
+**17)假设你在给定的数据上应用了逻辑回归模型，得到了训练精度X和测试精度y。现在，你想在同样的数据中添加一些新特性。哪个选项在这种情况下是正确的？（多选）**
+
+注意:考虑剩下的参数是相同的。
+
+A)的训练精度增加
+B)训练的准确性增加或保持不变
+C)测试精度降低
+D)测试的准确性增加或保持不变
+
+答案:A和D
+
+在模型中加入更多的特性会提高训练的准确性，因为模型必须考虑更多的数据来适应逻辑回归。但是如果发现特征显著的话，测试的准确性就会提高。
+
+**18)在逻辑回归中，下列哪个选项是正确的？**
+
+A)我们需要在n级分类问题中匹配n个模型
+B)我们需要将n-1个模型归入n类
+C)我们只需要将一个模型放入到n个类中
+D)都不正确
+
+答案:A
+
+如果有n个类，那么n个独立的逻辑回归就必须匹配，每个类别的概率都被预测到其他类别的组合中。
+
+**19)下面是两个不同的逻辑模型，它们的值分别为β0和β1。**
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/wx5e3742be.jpeg?imageView2/2/w/1620)
+
+下面哪个陈述正确的描述了两个逻辑模型的值β0（绿色）和β1(黑色)?
+
+注意:考虑Y=β0+β1*X。在这里，β0是截距，β1是系数。
+
+1)绿色β1比黑色大
+B)绿色β1比黑色小
+C)β1对两个模型都是一样的
+D)不好说
+
+答案:D
+
+β0和β1: β0 = 0, β1 = 1 是在X1里的颜色(黑色)，β0 = 0,β1 = −1是在X4里的颜色(绿色)
+
+**20-22)下面是三个散点图(从左到右A，B，C)和手工绘制的逻辑回归的决策边界。**
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/45youlf5xr.jpeg?imageView2/2/w/1620)
+
+**20)图中的哪一个显示决策边界过度拟合训练数据?**
+
+A)A
+B)B
+C)C
+D)都不是
+
+答案:C
+
+因为在C中，决策边界是不平滑的，这意味着它将过度拟合数据。
+
+**21)看到这种可视化之后你会得出什么结论?**
+
+1.与B和C相比较，散点图A的训练误差最大。
+2.这个回归问题的最佳模型是C，因为它有最小的训练误差(0)。
+3.第二个模型比第一个和第三个模型更具有鲁棒性，因为它将在不可见的数据上表现最好。
+4.第三种模式与第一种和第二种模式相比更能过度拟合。
+5.它们都将执行相同的操作，因为我们还没有看到测试数据。
+
+A)1和3
+B)1和3
+C)1，3，4
+D)5
+
+答案:C
+
+图表中的趋势看起来像是独立变量X的一个二次趋势，一个高次(右图)多项式可能在训练群中有很高的准确性，但是在测试数据集上可能会失败。如果你在左边的图中看到我们会有最大的训练误差是因为它不符合训练数据。
+
+**22)假设在正则化的不同值上产生了以上的决策边界。上述哪一个决策边界显示了最大的正则化?**
+
+A)A
+B)B
+C)C
+D)都有相同的正则化
+
+答案:A
+
+因为更多的正则化意味着更多的惩罚，还意味着更少的复杂的决策边界，图A显示了这些特征。
+
+**23)下图显示了三种逻辑回归模型的aucroc曲线。不同的颜色显示不同的超参数值的曲线。下列哪一项将会得到最好的结果?**
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/4udoi17u82.jpeg?imageView2/2/w/1620)
+
+A)黄色
+B)粉色
+C)黑色
+D)都能
+
+答案:A
+
+曲线下区域最大的，分类最好。
+
+**24)如果你想对同样的数据进行逻辑回归分析，这些数据会花费更少的时间，而且会给出比较相似的准确性(可能不一样)，那么你会怎么做呢?**
+
+假设你正在使用一个大型数据集的逻辑回归模型。在如此庞大的数据中，你可能面临的一个问题是，逻辑回归需要很长时间才能进行训练。
+
+A)降低学习率并减少迭代次数
+B)降低学习率并增加迭代次数
+C)提高学习率并增加迭代次数
+D)提高学习速度并减少迭代次数
+
+答案:D
+
+如果你在训练的时候减少了迭代次数，那么时间就会减少，但不会给出同样的准确性，但也不会强求你提高学习率。
+
+**25)下面哪个图像显示了y=1的成本函数？**
+
+下面是两个类的分类问题在逻辑回归中(y轴损失函数和x轴对数概率)的损失函数。
+
+注意:y是目标类
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/ihb8bjnozv.jpeg?imageView2/2/w/1620)
+
+A)A
+B)B
+C)两个都是
+D)两个都不是
+
+答案:A
+
+随着对数概率的增加，损失函数会减少。
+
+**26)假设下图是逻辑回归的成本函数。**
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/dngdq8o148.jpeg?imageView2/2/w/1620)
+
+现在，图中有多少个局部最小值?
+
+A)1个
+B)2个
+C)3个
+D)4个
+
+答案:C
+
+图中有3个局部极小值。
+
+
+**27)逻辑回归分类器能对下面的数据做一个完美的分类吗?**
+
+![](https://ask.qcloudimg.com/http-save/yehe-1308977/cdqojb1cqp.jpeg?imageView2/2/w/1620)
+
+注意:你只能使用X1和X2变量，其中X1和X2只能取两个二进制值(0,1)。
+
+A)正确
+B)错误
+C)不好说
+D)都不对
+
+答案:B
+
+逻辑回归只构成线性决策表，但图中的例子并不是线性可分的。
+
+```
+
+```

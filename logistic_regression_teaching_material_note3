@@ -1,0 +1,141 @@
+#实战案例:逻辑回归模型 - 股票客户流失预警模型
+#读取数据
+import pandas as pd
+stock_df = pd.read_excel("C:/Users/30722/Desktop/business data analysis/teaching materials/BDAB5-9/6逻辑回归/datasets/股票客户流失.xlsx")
+print(stock_df.head())
+#划分自变量和因变量
+X = stock_df.drop(columns=['是否流失'])
+y = stock_df['是否流失']
+#划分训练集和测试集     
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=1)
+#设置random_state保证结果可复现
+#导入逻辑回归模型
+from sklearn.linear_model import LogisticRegression
+model=LogisticRegression(random_state=1)
+#训练模型
+model.fit(X_train,y_train)
+#预测测试集
+y_pred=model.predict(X_test)
+print(y_pred[0:100])
+# 放到一个DataFrame里进行查看比对
+a = pd.DataFrame()  # 创建一个空DataFrame 
+a['预测值'] = list(y_pred)
+a['实际值'] = list(y_test)
+a.head()  
+
+#预测概率
+y_pred_proba = model.predict_proba(X_test)  
+y_pred_proba[0:5]#记住左边这一列是预测为0的概率，右边这一列是预测为1的概率
+
+#模型评估方法:ROC曲线和KS曲线
+'''
+术语:TP,TN,FP,FN
+TP:真正例,被模型正确预测为正类的样本数
+TN:真反例,被模型正确预测为负类的样本数
+FP:假正例,被模型错误预测为正类的样本数
+FN:假反例,被模型错误预测为负类的样本数
+误报率FPR:假正例率=FP/(FP+TN)
+正报率\灵敏度TPR:真正例率=TP/(TP+FN)(敏感性sensitivity,也称为recall召回率)
+漏报率MPR:假反例率=FN/(TP+FN)=1-TPR
+特异性sepcificity=TN/(TN+FP)=1-FPR
+accuracy:准确率=(TP+TN)/(TP+TN+FP+FN)
+precision:精确率=TP/(TP+FP)
+NPV(negative predictive value):负预测值=TN/(TN+FN)
+F1-score:F1分数=2*precision*recall/(precision+recall)
+牢记:specificity(所有健康人中，没被拉去隔离（判断正确）的比例)=1-FPR,recall=TPR
+
+实际上可以理解为误报率FPR(=FP/(FP+TN))是代价
+正报率TPR(=TP/(TP+FN))是收益,所以希望FPR越低越好,TPR越高越好
+
+THRES(threshold):阈值:将预测概率转换为具体类别的临界值
+ROC曲线:以FPR为横轴，TPR为纵轴绘制的曲线
+TPR越高,FPR越低,模型效果越好
+该思想反映在图形上就是ROC曲线尽可能地陡峭。
+曲线越靠近左上角，说明在相同的阈值条件下，命中率越高，假警报率越低，模型越完善
+从几何的角度来看是ROC曲线下的面积AUC越大,模型效果越好
+在ROC曲线中怎么看THRES阈值?
+ROC曲线上的每一个点都对应一个THRES阈值,可以通过调整THRES阈值来改变FPR和TPR的值,从而影响模型的性能
+比如说,如果我们选择一个较低的THRES阈值,那么模型会更倾向于预测正类,这可能会增加TPR(提高命中率),但也可能增加FPR(提高误报率)
+反之,如果选择一个较高的THRES阈值,模型会更倾
+
+KS曲线:以FPR为横轴，TPR-FPR为纵轴绘制的曲线
+AUC(area under curve):ROC曲线下的面积,衡量模型区分正负类能力
+max(tpr-fpr):KS值,衡量模型区分正负类能力
+
+'''
+
+# 查看全部的预测准确度
+from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score, confusion_matrix, classification_report
+#上面的这些分别是啥?
+'''
+accuracy_score: 评估模型预测正确的比例，即预测值与实际值一致的比例。
+precision_score: 评估模型预测为正类的样本中，实际也是正类的比例。
+recall_score: 评估模型识别出的正类样本占所有正类样本的比例。
+f1_score=precision_score*recall_score/(precision_score+recall_score)
+f1_score: 综合考虑精确率和召回率的指标，是它们的调和平均数。
+confusion_matrix: 混淆矩阵，展示模型预测结果的详细分类情况
+classification_report: 提供了精确率、召回率、F1分数等多项指标的综合报告。
+'''
+print(accuracy_score(y_pred, y_test))
+print(precision_score(y_pred, y_test))
+print(recall_score(y_pred, y_test))
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+# 另外一种查看模型预测准确度的方法
+model.score(X_test, y_test)
+
+#绘制ROC曲线和计算AUC值
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
+y_pred_proba = model.predict_proba(X_test)[:, 1]  # 获取预测为正类的概率
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+roc_auc = auc(fpr, tpr)
+import numpy as np
+i = np.argmax(tpr-fpr)
+print(f"最大：{i} \t{max(tpr-fpr)}")
+df = pd.DataFrame(data={'fpr':fpr, 'tpr':tpr, 'thres':thresholds})
+df = df.sort_values(by='thres', ascending=False)
+df = df[1:]
+df = df.set_index("thres", drop=True)
+print(df)
+# df.plot(y=['fpr','tpr']) 
+# import cufflinks
+# df.iplot()
+import matplotlib.pyplot as plt
+plt.plot(fpr)
+plt.plot(tpr)
+plt.plot(tpr-fpr)
+plt.xticks = thresholds
+sns.set_context("talk")
+df1 = df.copy()
+df1['gap'] = (tpr-fpr)[1:]
+df1.plot.line(colormap="Set1")
+import seaborn as sns
+import pandas as pd
+sns.lineplot(x=fpr, y=tpr)
+# 2.查看假警报率（fpr）、命中率（tpr）及阈值（thres）
+a = pd.DataFrame()  # 创建一个空DataFrame 
+a['threshold'] = list(thresholds)
+a['fpr'] = list(fpr)
+a['tpr'] = list(tpr)
+
+# 3.计算AUC值
+from sklearn.metrics import roc_auc_score   
+auc_score = roc_auc_score(y_test, y_pred_proba)
+print("AUC值为:", auc_score)
+
+#怎么理解阈值取值
+max(y_pred_proba[:,1])
+
+#绘制KS曲线:
+#KS曲线将阈值作为横坐标，将命中率（TPR）与假警报率（FPR）之差作为纵坐标
+
+ks_values = tpr - fpr
+sns.lineplot(x=thresholds, y=ks_values)
+#一般来说，KS值越大，模型的区分能力越强。通常情况下，KS值大于0.2被认为是一个不错的模型，大于0.3则是一个非常好的模型。   
+#KS值小于0.2，一般认为模型的区分能力较弱； KS值在[0.2，0.3]区间内，模型具有一定区分能力； KS值在[0.3，0.5]区间内，模型具有较强的区分能力
+#计算KS值
+max(y_pred_proba[:,1])
+# 获取KS值对应的阈值等信息
+a[a['TPR-FPR'] == max(a['TPR-FPR'])]

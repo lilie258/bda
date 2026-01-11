@@ -1,0 +1,176 @@
+#了解数据集的基本操作：chipotle 快餐数据集
+import pandas as pd 
+import numpy as np
+#数据集导入
+chipotle_df=pd.read_csv('C:/Users/30722/jnu-homework/dataset/chipotle.csv')
+#打印列名称
+#print(chipotle_df.columns)
+#查看列数
+#print(chipotle_df.shape)
+#print(chipotle_df.shape[1])#(实际上打印的是shape属性输出的数组的第二个元素)
+#观察索引
+#print(chipotle_df.index)#RangeIndex(start=0, stop=4622, step=1)
+#被下单数最多的商品item是什么？（统计商品出现次数最大值并返回）
+#注意这里不能只统计item_name列，因为下单的时候有可能买几件，也就是要看quantity列😓
+c = chipotle_df[['item_name','quantity']].groupby(['item_name'],as_index=False).agg({'quantity':sum})
+#更好的写法
+c = chipotle_df[['item_name','quantity']].groupby(['item_name'],as_index=False)['quantity'].sum()
+print(c)
+#注意以列名为索引读取列的写法，y因为有两个列要读取，所以形成列名列表，是两个中括号不是一个中括号
+#agg是聚合函数，用agg实现sum的效果要里面加个字典{'quantity':sum}
+#agg聚合函数的用法：
+'''
+GroupBy 对象的 agg()（最常用场景）:grouped_obj.agg(func, *args, **kwargs)
+DataFrame 对象的 agg():df.agg(func, axis=0, *args, **kwargs)
+Series 对象的 agg():series.agg(func, *args, **kwargs)
+func 支持单个函数、函数列表、字典等形式，灵活适配不同聚合需求：
+如果是对分组后的列直接求和，可以单个聚合函数（字符串 / 内置函数 / 自定义函数）：grouped.agg('sum') 
+如果是要生成多个计算值，可以用 函数列表（对同一列执行多个聚合操作）：df.groupby('A')['B'].agg(['sum', 'min'])
+如果是指定不同列对应不同聚合操作，要用字典：df.groupby('A').agg({
+    'B': 'max',
+    'C': np.mean
+})
+'''
+c.sort_values(['quantity'],ascending=False,inplace=True)
+#print(c.head())
+#在item_name这一列中，一共有多少种商品被下单？
+#print(c.info())
+#也可以用chipo['item_name'].nunique()
+#在choice_description中，下单次数最多的商品是什么？
+#print(chipotle_df['choice_description'].value_counts().head())
+# 一共有多少商品被下单
+total_item_order=chipotle_df['quantity'].sum()
+#print(total_item_order)
+#将item_price转换为浮点数
+dollarizer = lambda x: float(x[1:-1])
+chipotle_df['item_price'] = chipotle_df['item_price'].apply(dollarizer)
+#在该数据集对应的时期内，收入(revenue)是多少，这里相当于新增一列然后加总
+chipotle_df['sub_total'] = round(chipotle_df['item_price'] * chipotle_df['quantity'],2)
+chipotle_df['sub_total'].sum()
+
+#数据过滤与排序：探索2012欧洲杯数据
+euro12=pd.read_csv('C:/Users/30722/jnu-homework/dataset/Euro2012_stats.csv')
+#只选取 Goals 这一列
+euro12goal=euro12['Goals']
+#将数据集中的列Team, Yellow Cards和Red Cards单独存为一个名叫discipline的数据框
+discipline=euro12[['Team','Yellow Cards','Red Cards']]
+#对数据框discipline按照先Red Cards再Yellow Cards进行排序
+# #注意：句意是对 discipline 数据框，先按「Red Cards 红牌」列排序，红牌相同的情况下，再按「Yellow Cards 黄牌」列排序
+discipline=discipline.sort_values(['Red Cards','Yellow Cards'])
+#print(discipline)
+#计算每个球队拿到的黄牌数的平均值
+#print(discipline['Yellow Cards'].mean())
+#找到进球数Goals超过6的球队数据
+#print(euro12[euro12goal['Goals']>6])这个不对，因为之前把 euro12goal 定义成了 euro12['Goals']（即一个 Series），而 Series 没有'Goals'这个键，所以 euro12goal['Goals'] 会报KeyError。
+#print(euro12[euro12goal>6])
+#选取以字母G开头的球队数据
+#print(euro12[euro12.Team.str.startswith('G')])
+#选取前7列
+#注意这里不能用loc只能用iloc，因为loc是基于「标签（列名 / 行名）」索引，而iloc是基于「整数位置」索引
+#print(euro12.iloc[:,0:7])
+#选取除了最后3列之外的全部列
+euro12.iloc[: , :-3]
+#找到英格兰(England)、意大利(Italy)和俄罗斯(Russia)的射正率(Shooting Accuracy)
+#用isin函数
+#print(euro12.loc[euro12['Team'].isin(['England', 'Italy', 'Russia']), ['Team','Shooting Accuracy']])
+#df.loc[ 行筛选条件 , 列筛选条件 ]
+#行筛选条件：euro12['Team'].isin(['England', 'Italy', 'Russia'])
+#列筛选条件：['Team','Shooting Accuracy']
+'''
+       Team Shooting Accuracy
+3   England             50.0%
+7     Italy             43.0%
+12   Russia             22.5%
+'''
+
+#数据分组：探索酒类消费数据
+drinks=pd.read_csv('C:/Users/30722/jnu-homework/dataset/drinks.csv')
+#哪个大陆(continent)平均消耗的啤酒(beer)更多？
+#print(drinks.groupby('continent')['beer_servings'].mean())
+#打印出每个大陆(continent)的红酒消耗(wine_servings)的描述性统计值
+#print(drinks.groupby('continent')['wine_servings'].describe())
+#打印出每个大陆对spirit饮品消耗的平均值，最大值和最小值
+#print(drinks.groupby('continent')['spirit_servings'].agg(['mean', 'min', 'max']))
+
+#Apply函数:探索1960 - 2014 美国犯罪数据
+crime=pd.read_csv(r"C:\Users\30722\jnu-homework\dataset\US_Crime_Rates_1960_2014.csv")
+#将Year的数据类型转换为 datetime64
+#用to_datetime
+crime['Year']=pd.to_datetime(crime['Year'])
+#print(crime.info())
+#将列Year设置为数据框的索引
+crime=crime.set_index('Year')
+#print(crime)
+#删除名为Total的列
+del crime['Total']
+#按照Year对数据框进行分组并求和
+#注意Population这一列，若直接对其求和，是不正确的
+crimes = crime.resample('10YS').sum() # resample a time series per decades
+#print(crimes)
+# 用resample去得到“Population”列的最大值
+population = crime['Population'].resample('10YS').max()
+# 更新 "Population" 
+crimes['Population'] = population
+#print(crimes)
+#何时是美国历史上生存最危险的年代？用idxmax方法来分别队每一列进行求最大值
+#idxmax是 pandas 中用于定位「最大值对应的索引标签」 的函数
+#print(crime.idxmax())
+
+#合并：探索虚拟姓名数据
+#all_data = pd.concat([data1, data2],axis=0/axis=1)
+#按照subject_id的值对all_data和data3作合并
+#pd.merge(all_data, data3, on='subject_id')
+#对data1和data2按照subject_id作连接
+#pd.merge(data1, data2, on='subject_id', how='inner')
+#找到 data1 和 data2 合并之后的所有匹配结果
+#pd.merge(data1, data2, on='subject_id', how='outer')
+
+#统计：探索风速数据
+import datetime
+data = pd.read_table("C:/Users/30722/jnu-homework/dataset/wind.data",sep = "\s+", parse_dates = [[0,1,2]]) 
+# 2061年？我们真的有这一年的数据？创建一个函数并用它去修复这个bug
+def fix_century(x):
+    year = x.year - 100 if x.year > 2026 else x.year
+    return datetime.date(year, x.month, x.day)
+data['Yr_Mo_Dy'] = data['Yr_Mo_Dy'].apply(fix_century)
+#print(data)
+#将日期设为索引，注意数据类型，应该是datetime64[ns]
+data["Yr_Mo_Dy"] = pd.to_datetime(data["Yr_Mo_Dy"])
+data = data.set_index('Yr_Mo_Dy')
+#print(data)
+#对应每一个location，一共有多少数据值缺失
+#print(data.isnull().sum())
+#对应每一个location，一共有多少完整的数据值
+#print(data.shape)
+#print(data.shape[0]-data.isnull().sum())
+#对于全体数据，计算风速的平均值
+data.mean().mean()#单一个mean只能取每个地方的平均！！！而不是年份的平均
+#print(data.mean())
+# 创建一个名为loc_stats的数据框去计算并存储每个location的风速最小值，最大值，平均值和标准差
+# 这里不能用agg
+loc_stats = pd.DataFrame()
+loc_stats['min'] = data.min(axis=0) # min
+loc_stats['max'] = data.max(axis=0) # max 
+loc_stats['mean'] = data.mean(axis=0) # mean
+loc_stats['std'] = data.std(axis=0) # standard deviations
+#print(loc_stats)#day_stats要改成axis=1
+#怎么把索引加成新的一列？#
+data['date'] = data.index
+# 对于每一个location，计算一月份的平均风速
+#注意，1961年的1月和1962年的1月应该区别对待
+data['month'] = data['date'].apply(lambda date: date.month)
+data['year'] = data['date'].apply(lambda date: date.year)
+data['day'] = data['date'].apply(lambda date: date.day)
+january_winds = data[data['month']== 1]
+#print(january_winds)
+#print(january_winds.loc[:,'RPT':"MAL"].mean())
+#对于数据记录按照年为频率取样
+#用resample不行，因为没有加要聚合什么值，比如mean（）
+#data_1YS=data.resample('1YS')#这个不行
+data.query('month == 1 and day == 1')#这个可以
+
+#可视化练习
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np

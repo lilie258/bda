@@ -1,0 +1,47 @@
+#可视化:探索泰坦尼克灾难数据
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+titanic=pd.read_csv("C:/Users/30722/jnu-homework/dataset/train.csv")
+titanic.set_index('PassengerId').head()
+#绘制一个展示男女乘客比例的扇形图
+#首先，扇形图是什么？是饼图plt.pie
+#先做数据准备
+males = (titanic['Sex'] == 'male').sum()
+females = (titanic['Sex'] == 'female').sum()
+proportions = [males, females]#注意plt.pie不用加data=，直接在一开始写proportions列表
+plt.pie(proportions,labels = ['Males', 'Females'],autopct = '%1.1f%%')
+#加标题要在外面加
+plt.title("Sex Proportion")
+# View the plot
+plt.tight_layout()
+#plt.show()
+
+#不用plt.pie可以直接用pandas自带的plot方法
+titanic.Sex.value_counts().plot(kind='pie',autopct='%1.1f%%')
+
+#绘制一个展示船票Fare, 与乘客年龄和性别的散点图
+#首先散点图是什么？ kind=scatter，用sns就是lmplot
+titanic.plot(kind="scatter", x = "Fare", y="Age" , alpha = 0.1)
+#plt.show()
+#
+# creates the plot using
+lm = sns.lmplot(x = 'Age', y = 'Fare', data = titanic, hue = 'Sex', fit_reg=False)
+# set title
+lm.set(title = 'Fare x Age')
+# get the axes object and tweak it
+axes = lm.axes
+axes[0,0].set_ylim(-5,)
+axes[0,0].set_xlim(-5,85)
+
+#绘制一个展示船票价格的直方图
+#首先，直方图是什么？plt.hist
+#画直方图必须要先对要进行展示的数据进行读取和排序，ascending=False
+titanic_price=titanic['Fare'].sort_values(ascending=False)
+binsVal = np.arange(0,600,10)
+plt.hist(titanic_price,binsVal)
+plt.xlabel('Fare')
+plt.ylabel('Frequency')
+plt.title('Fare Payed Histrogram')
+#plt.show()

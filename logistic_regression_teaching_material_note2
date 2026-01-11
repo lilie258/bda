@@ -1,0 +1,75 @@
+#逻辑回归代码实现
+#初始数据输入
+import numpy as np
+X = np.array([[1,2], [2,3], [3,1], [6,5], [7,7], [8,6]]) #特征数据
+y = np.array([0,0,0,1,1,1]) #标签数据
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8)
+print(X_train)
+print(y_train)  
+
+#逻辑回归模型训练
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()#实例化
+model.fit(X_train, y_train) #fit训练
+model.predict([[1,1], [2,2], [5, 5]])#预测
+
+#预测概率
+y_test_pred_proba=model.predict_proba(X_test)
+print(y_test_pred_proba)
+#打印结果是一个ndarray,左边这一列是分类为零也就是是否的概率，右边这一列是分类为1也就是是肯定的概率
+##另外一种打印概率的方式：通过DataFrame展示，更加好看些
+import pandas as pd
+a = pd.DataFrame(y_test_pred_proba, columns=['分类为0的概率', '分类为1的概率'])  # 2.2.1 通过numpy数组创建DataFrame
+print(a)
+
+## 打印系数和截距项
+print(model.coef_)  # 系数k1与k2,因为前面的x是二维的(有两列)，所以这里coef_是一个二维数组
+print(model.intercept_)  # 截距项k0
+k1 = model.coef_[0][0]
+k2 = model.coef_[0][1] 
+k0 = model.intercept_[0]
+print(f"回归方程为：z={k0}+{k1}x1+{k2}x2")
+
+# 如果想批量查看预测概率
+for i in range(5):  # 这里共有5条数据，所以循环5次
+    print(1 / (1 + np.exp(-(np.dot(X[i], model.coef_.T) + model.intercept_))))
+# 怎么能用循环呢？ numpy有现成的做法
+z = np.dot(X, model.coef_.T) + model.intercept_
+sigmoid = lambda z: 1/(1+np.exp(-z))
+y = sigmoid(z)
+z, y 
+# 这里之所以是shape=(5,1)，应该是因为 model.coef_.T.shape = (2,1), 而X.shape=(5,2)
+
+#补充:多分类逻辑回归模型演示
+# 构造数据，此时y有多个分类
+X = [[1, 0], [5, 1], [6, 4], [4, 2], [3, 2]]
+y = [-1, 0, 1, 1, 1]  # 这里有三个分类-1、0、1
+
+# 模型训练
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X, y) 
+# 如果运行时下面出现FutureWarning警告，不要在意，它只是在告诉你以后模型的官方默认参数会有所调整而已，不是报错
+print(model.predict([[0, 0]]))
+model.predict(X)
+print(model.predict_proba([[0, 0]]))
+
+#可视化
+import matplotlib.pyplot as plt
+#绘制数据点
+plt.scatter(X[:,0], X[:,1], c=y)
+#绘制决策边界   
+import warnings
+warnings.filterwarnings('ignore')
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
+                     np.arange(y_min, y_max, 0.1))
+Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+plt.contourf(xx, yy, Z, alpha=0.3)
+plt.xlabel('Feature 1') 
+plt.ylabel('Feature 2')
+plt.title('Logistic Regression Decision Boundary')
+plt.show()

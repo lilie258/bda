@@ -1,0 +1,60 @@
+from sklearn import datasets
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import ListedColormap
+import pandas as pd
+
+#导入数据
+iris=pd.read_csv("C:/users/30722/Desktop/business data analysis/teaching materials/3.Pandas/references/exercise_data/iris.csv")
+#或者
+iris = datasets.load_iris()
+X = iris.data[:, :2]
+
+# 生成网格化数据
+x1_array = np.linspace(4,8,101)
+x2_array = np.linspace(1,5,101)
+xx1, xx2 = np.meshgrid(x1_array,x2_array)
+#这个meshgrid是什么函数？将多个一维的坐标数组，转换成「多维网格坐标矩阵」。
+
+# 创建调色板
+rgb = [[255, 238, 255],  
+       [219, 238, 244],  
+       [228, 228, 228]]  
+rgb = np.array(rgb)/255.
+cmap_light = ListedColormap(rgb)
+
+#核心步骤:KMeans聚类
+kmeans = KMeans(n_clusters=3, n_init = 'auto')
+cluster_labels = kmeans.fit_predict(X)
+#print(cluster_labels)生成的结果是用012表示三分类聚类类别
+
+# 预测聚类
+Z = kmeans.predict(np.c_[xx1.ravel(), xx2.ravel()])
+Z = Z.reshape(xx1.shape)
+print(Z)
+
+#可视化
+fig, ax = plt.subplots()
+
+ax.contourf(xx1, xx2, Z, cmap=cmap_light)
+#contourf是什么？填充等高线图 / 填充轮廓图，把二维平面上「数值相等」的点连接成平滑的曲线（这个曲线叫「等高线 / 轮廓线」），并给相邻两条等高线之间的区域填充上对应的颜色，用来直观展示「二维平面的数值分布、密度变化、高低起伏」。
+ax.scatter(x=X[:, 0], y=X[:, 1], 
+           color=np.array([0, 68, 138])/255., 
+           alpha=1.0,
+           linewidth = 1, edgecolor=[1,1,1])
+# 绘制决策边界
+levels = np.unique(Z).tolist()
+ax.contour(xx1, xx2, Z, levels=levels,colors='r')
+#plt.contour() → 只画空心的等高线条纹，不填充颜色
+centroids = kmeans.cluster_centers_#centroids = 聚类中心 / 质心；cluster_centers_ = K-Means 模型的「聚类中心属性」
+ax.scatter(centroids[:, 0], centroids[:, 1], 
+           marker="x", s=100, linewidths=1.5,
+           color="r")
+
+ax.set_xlim(4, 8); ax.set_ylim(1, 5)
+ax.set_xlabel(iris.feature_names[0])
+ax.set_ylabel(iris.feature_names[1])
+ax.grid(linestyle='--', linewidth=0.25, 
+        color=[0.5,0.5,0.5])
+ax.set_aspect('equal', adjustable='box')
